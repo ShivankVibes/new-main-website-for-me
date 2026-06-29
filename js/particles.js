@@ -111,11 +111,16 @@
     }
   }
 
-  function init() {
-    resize();
-    particles = [];
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      particles.push(new Particle());
+  function resize() {
+    const newW = canvas.clientWidth || window.innerWidth;
+    const newH = canvas.clientHeight || window.innerHeight;
+    if (W !== newW || H !== newH) {
+      W = canvas.width = newW;
+      H = canvas.height = newH;
+      particles = [];
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push(new Particle());
+      }
     }
   }
 
@@ -143,6 +148,17 @@
     resizeTimer = setTimeout(() => { resize(); }, 150);
   });
 
-  init();
+  // Initial populate
+  W = canvas.width = canvas.clientWidth || window.innerWidth;
+  H = canvas.height = canvas.clientHeight || window.innerHeight;
+  particles = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push(new Particle());
+  }
+
+  // Handle post-layout resize when stylesheets fully load
+  window.addEventListener('load', resize);
+  document.addEventListener('DOMContentLoaded', resize);
+
   animate();
 })();

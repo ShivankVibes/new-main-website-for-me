@@ -1,0 +1,312 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   animations.css — Keyframes, scroll reveals, hover effects
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ──────────────────────────────────────────────────────────────── */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,0.3); }
+  50%       { box-shadow: 0 0 40px rgba(59,130,246,0.6), 0 0 80px rgba(59,130,246,0.2); }
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes terminalType {
+  from { max-width: 0; opacity: 0; }
+  to   { max-width: 100%; opacity: 1; }
+}
+
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(59,130,246,0.3); }
+  50%       { border-color: rgba(139,92,246,0.6); }
+}
+
+@keyframes heroGridDrift {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(40px, 40px); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position: 200% center; }
+}
+
+/* ── Hero Animations ────────────────────────────────────────────────────────── */
+.hero-badge {
+  animation: fadeUp 0.6s ease both;
+}
+.hero-title {
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+.hero-subtitle {
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+.hero-description {
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+.hero-actions {
+  animation: fadeUp 0.7s 0.4s ease both;
+}
+.hero-stats {
+  animation: fadeUp 0.7s 0.5s ease both;
+}
+
+/* ── Scroll Reveal Classes ──────────────────────────────────────────────────── */
+.reveal,
+.reveal-left,
+.reveal-right,
+.reveal-scale {
+  opacity: 0;
+  transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1),
+              transform 0.65s cubic-bezier(0.16,1,0.3,1);
+}
+
+.reveal         { transform: translateY(28px); }
+.reveal-left    { transform: translateX(-32px); }
+.reveal-right   { transform: translateX(32px); }
+.reveal-scale   { transform: scale(0.92); }
+
+.reveal.visible,
+.reveal-left.visible,
+.reveal-right.visible,
+.reveal-scale.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Card Hover Effects ──────────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px rgba(59,130,246,0.12);
+  border-color: rgba(59,130,246,0.35) !important;
+}
+
+.card-hover:hover .project-img {
+  transform: scale(1.04);
+}
+
+/* ── Button Animations ───────────────────────────────────────────────────────── */
+.btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(59,130,246,0.45), 0 8px 20px rgba(59,130,246,0.25);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* ── Skill Card Glow ─────────────────────────────────────────────────────────── */
+.skill-card:hover {
+  animation: glowPulse 2s ease infinite;
+  border-color: rgba(59,130,246,0.5) !important;
+}
+
+/* ── Typing Cursor ───────────────────────────────────────────────────────────── */
+.cursor {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Float Effect for Hero Avatar ────────────────────────────────────────────── */
+.float-anim {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* ── Animated Gradient Text ──────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg in oklch, var(--accent) 0%, var(--accent-2) 50%, var(--accent) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ── Nav Link Underline Slide ───────────────────────────────────────────────── */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.25s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* ── Timeline Connector Pulse ───────────────────────────────────────────────── */
+.timeline-dot {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-item:hover .timeline-dot {
+  transform: scale(1.3);
+  box-shadow: 0 0 20px rgba(59,130,246,0.6);
+}
+
+/* ── Service Card ───────────────────────────────────────────────────────────── */
+.service-card .service-icon {
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.service-card:hover .service-icon {
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* ── Back to Top ─────────────────────────────────────────────────────────────── */
+#back-to-top {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+#back-to-top.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ── Terminal Easter Egg ─────────────────────────────────────────────────────── */
+#terminal-easter-egg {
+  opacity: 0;
+  transform: scale(0.9) translateY(20px);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+#terminal-easter-egg.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+.term-line {
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  transition: none;
+}
+.term-line.typed {
+  max-width: 100%;
+  opacity: 1;
+  animation: terminalType 0.5s ease forwards;
+}
+
+/* ── Page Load ──────────────────────────────────────────────────────────────── */
+body {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+body.loaded {
+  opacity: 1;
+}
+
+/* ── Glow Border Animation ──────────────────────────────────────────────────── */
+.glow-border {
+  animation: borderGlow 3s ease infinite;
+}
+
+/* ── Scroll Progress Bar ─────────────────────────────────────────────────────── */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(to right, var(--accent), var(--accent-2));
+  z-index: 9999;
+  border-radius: 0 2px 2px 0;
+  transition: width 0.1s linear;
+}
+
+/* ── Reduced Motion ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-left, .reveal-right, .reveal-scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .hero-badge, .hero-title, .hero-subtitle,
+  .hero-description, .hero-actions, .hero-stats {
+    animation: none;
+    opacity: 1;
+  }
+  .gradient-text { animation: none; }
+  .float-anim    { animation: none; }
+  .skill-card:hover { animation: none; }
+  body { opacity: 1; transition: none; }
+  body.loaded { opacity: 1; }
+}

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hand Lightning Tracker</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    h1 {
+      color: #00ccff;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px #00ccff;
+    }
+    #controls {
+      background: rgba(0, 204, 255, 0.1);
+      padding: 15px 25px;
+      border-radius: 10px;
+      border: 2px solid #00ccff;
+      margin-bottom: 20px;
+    }
+    #controls label {
+      color: #00ccff;
+      font-size: 16px;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+    #colorPicker {
+      width: 80px;
+      height: 50px;
+      border: 3px solid #00ccff;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #000;
+    }
+    video {
+      display: none;
+    }
+    canvas {
+      border: 4px solid #00ccff;
+      border-radius: 12px;
+      box-shadow: 0 0 40px rgba(0, 204, 255, 0.5);
+      max-width: 100%;
+      background: #111;
+    }
+    #status {
+      color: #00ccff;
+      font-size: 18px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .info {
+      color: #888;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ Hand Lightning Tracker ⚡</h1>
+  <div id="status">Click START to begin</div>
+  <button id="startBtn" style="padding: 15px 30px; font-size: 18px; background: #00ccff; color: #000; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold;">START</button>
+  
+  <div id="controls" style="display: none;">
+    <label>Lightning Color:</label>
+    <input type="color" id="colorPicker" value="#00ccff">
+  </div>
+  
+  <video id="video" playsinline autoplay></video>
+  <canvas id="canvas" width="640" height="480"></canvas>
+  <div class="info">by shivankvibes(yt)</div>
+
+  <script type="module">
+    import { HandLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const status = document.getElementById('status');
+    const startBtn = document.getElementById('startBtn');
+    const controls = document.getElementById('controls');
+    const colorPicker = document.getElementById('colorPicker');
+    
+    let handLandmarker;
+    let particles = [];
+    let isRunning = false;
+    let lightningColor = '#00ccff';
+
+    colorPicker.addEventListener('input', (e) => {
+      lightningColor = e.target.value;
+    });
+
+    class Lightning {
+      constructor(x1, y1, x2, y2) {
+        const pts = [{x: x1, y: y1}];
+        const dist = Math.hypot(x2-x1, y2-y1);
+        const segs = Math.max(12, Math.floor(dist / 15));
+        const disp = dist * 0.08; // Reduced from 0.2 to 0.08 for less jagged movement
+        
+        for (let i = 1; i < segs; i++) {
+          const t = i / segs;
+          const nx = x1 + (x2 - x1) * t + (Math.random() - 0.5) * disp;
+          const ny = y1 + (y2 - y1) * t + (Math.random() - 0.5) * disp;
+          pts.push({x: nx, y: ny});
+        }
+        pts.push({x: x2, y: y2});
+        this.points = pts;
+      }
+
+      draw() {
+        // Thin outer glow with user color
+        ctx.strokeStyle = lightningColor;
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = lightningColor;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(this.points[0].x, this.points[0].y);
+        for (let i = 1; i < this.points.length; i++) {
+          ctx.lineTo(this.points[i].x, this.points[i].y);
+        }
+        ctx.stroke();
+        
+        // Thin bright core
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.5;
+        ctx.shadowBlur = 5;
+        ctx.stroke();
+      }
+    }
+
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 3 + 1;
+        this.vx = (Math.random() - 0.5) * 4;
+        this.vy = (Math.random() - 0.5) * 4;
+        this.life = 1;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.025;
+        this.size *= 0.96;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = lightningColor;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = lightningColor;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawGlow(px, py) {
+      ctx.save();
+      const grad = ctx.createRadialGradient(px, py, 0, px, py, 20);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.4, lightningColor);
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = grad;
+      ctx.shadowBlur = 25;
+      ctx.shadowColor = lightningColor;
+      ctx.beginPath();
+      ctx.arc(px, py, 20, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.arc(px, py, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    async function detectHands() {
+      if (!isRunning) return;
+
+      const results = handLandmarker.detectForVideo(video, performance.now());
+
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      particles = particles.filter(p => {
+        p.update();
+        p.draw();
+        return p.life > 0;
+      });
+
+      if (results.landmarks && results.landmarks.length >= 2) {
+        status.textContent = '⚡ Both hands tracked! ⚡';
+        const h1 = results.landmarks[0];
+        const h2 = results.landmarks[1];
+        const tips = [4, 8, 12, 16, 20];
+
+        tips.forEach(idx => {
+          const p1 = h1[idx];
+          const p2 = h2[idx];
+          const x1 = (1 - p1.x) * canvas.width;
+          const y1 = p1.y * canvas.height;
+          const x2 = (1 - p2.x) * canvas.width;
+          const y2 = p2.y * canvas.height;
+
+          for (let i = 0; i < 2; i++) {
+            new Lightning(x1, y1, x2, y2).draw();
+          }
+
+          const mx = (x1 + x2) / 2;
+          const my = (y1 + y2) / 2;
+          for (let i = 0; i < 3; i++) {
+            particles.push(new Particle(mx + (Math.random() - 0.5) * 80, my + (Math.random() - 0.5) * 80));
+          }
+
+          drawGlow(x1, y1);
+          drawGlow(x2, y2);
+        });
+      } else if (results.landmarks && results.landmarks.length === 1) {
+        status.textContent = 'One hand - show both hands';
+      } else {
+        status.textContent = 'Show both hands';
+      }
+
+      requestAnimationFrame(detectHands);
+    }
+
+    startBtn.onclick = async function() {
+      try {
+        startBtn.disabled = true;
+        startBtn.textContent = 'Loading...';
+        status.textContent = 'Accessing camera...';
+
+        const stream = await navigator.mediaDevices.getUserMedia({video: {width: 640, height: 480, facingMode: 'user'}});
+        video.srcObject = stream;
+        await video.play();
+
+        status.textContent = 'Loading AI model...';
+        const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+        handLandmarker = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+            delegate: 'GPU'
+          },
+          runningMode: 'VIDEO',
+          numHands: 2
+        });
+
+        status.textContent = 'Ready!';
+        startBtn.style.display = 'none';
+        controls.style.display = 'block';
+        isRunning = true;
+        detectHands();
+      } catch (err) {
+        status.textContent = 'Error: ' + err.message;
+        status.style.color = '#ff4444';
+        startBtn.disabled = false;
+        startBtn.textContent = 'TRY AGAIN';
+      }
+    };
+  </script>
+</body>
+</html>

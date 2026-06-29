@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISL Alphabet Reference Guide</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;600;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #141937 100%);
+            color: #ffffff;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 255, 136, 0.2));
+            color: white;
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(0, 255, 136, 0.4));
+            border-color: #00d4ff;
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+            transform: translateY(-50%) translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .back-button {
+                position: static;
+                transform: none;
+                margin-bottom: 20px;
+            }
+            
+            .back-button:hover {
+                transform: translateY(-2px);
+            }
+        }
+        
+        h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 3rem;
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #a0a8c4;
+            font-size: 1.2rem;
+        }
+        
+        .section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            color: #00ff88;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background: rgba(20, 25, 55, 0.8);
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .letter {
+            font-family: 'Space Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+        
+        .description {
+            font-size: 0.9rem;
+            color: #a0a8c4;
+            line-height: 1.6;
+        }
+        
+        .finger-pattern {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: #00d4ff;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+        }
+        
+        .note {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .note-title {
+            font-weight: 700;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .key {
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .key-title {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .key-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .key-symbol {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            color: #00ff88;
+            min-width: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="isl_translator.html" class="back-button" onclick="handleBack(event)">← Back to Translator</a>
+            <h1>ISL ALPHABET GUIDE</h1>
+            <p class="subtitle">Indian Sign Language A-Z Reference</p>
+        </header>
+        
+        <div class="key">
+            <div class="key-title">FINGER POSITION KEY</div>
+            <div class="key-item">
+                <span class="key-symbol">✓</span>
+                <span>Finger Extended (Up)</span>
+            </div>
+            <div class="key-item">
+                <span class="key-symbol">✗</span>
+                <span>Finger Closed (Down)</span>
+            </div>
+            <div class="key-item">
+                <span class="key-symbol">→</span>
+                <span>Pattern: [Thumb] [Index] [Middle] [Ring] [Pinky]</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">A - E</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="letter">A</div>
+                    <div class="description">Closed fist with thumb on the side</div>
+                    <div class="finger-pattern">[✗] [✗] [✗] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">B</div>
+                    <div class="description">Four fingers up, thumb across palm</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✓] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">C</div>
+                    <div class="description">Hand curved forming C shape</div>
+                    <div class="finger-pattern">[✓] [✓] [✓] [✓] [✓] Curved</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">D</div>
+                    <div class="description">Index up, thumb touches middle/ring</div>
+                    <div class="finger-pattern">[✓] [✓] [✗] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">E</div>
+                    <div class="description">Fingers bent, thumb across knuckles</div>
+                    <div class="finger-pattern">[✓] [✗] [✗] [✗] [✗]</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">F - J</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="letter">F</div>
+                    <div class="description">Thumb touches index, pinky extended</div>
+                    <div class="finger-pattern">[✓] [✗] [✗] [✗] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">G</div>
+                    <div class="description">Index & thumb pointing sideways</div>
+                    <div class="finger-pattern">[✓] [✓] [✗] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">H</div>
+                    <div class="description">Index & middle horizontal</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">I</div>
+                    <div class="description">Pinky finger extended upward</div>
+                    <div class="finger-pattern">[✗] [✗] [✗] [✗] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">J</div>
+                    <div class="description">Pinky draws J shape in air</div>
+                    <div class="finger-pattern">[✗] [✗] [✗] [✗] [✓] + Motion</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">K - O</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="letter">K</div>
+                    <div class="description">Index & middle up, thumb between</div>
+                    <div class="finger-pattern">[✓] [✓] [✓] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">L</div>
+                    <div class="description">Thumb & index form L shape</div>
+                    <div class="finger-pattern">[✓] [✓] [✗] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">M</div>
+                    <div class="description">Three fingers over thumb</div>
+                    <div class="finger-pattern">[✗] [✗] [✓] [✓] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">N</div>
+                    <div class="description">Two fingers over thumb</div>
+                    <div class="finger-pattern">[✗] [✗] [✗] [✓] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">O</div>
+                    <div class="description">Fingertips touch forming circle</div>
+                    <div class="finger-pattern">[✓] [✓] [✓] [✓] [✓] Circle</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">P - T</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="letter">P</div>
+                    <div class="description">Index & middle pointing down</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✗] [✗] Down</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">Q</div>
+                    <div class="description">Thumb & index pointing down</div>
+                    <div class="finger-pattern">[✓] [✓] [✗] [✗] [✗] Down</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">R</div>
+                    <div class="description">Index & middle crossed</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✗] [✗] Crossed</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">S</div>
+                    <div class="description">Fist with thumb across front</div>
+                    <div class="finger-pattern">[✓] [✗] [✗] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">T</div>
+                    <div class="description">Thumb between index & middle</div>
+                    <div class="finger-pattern">[✓] [✗] [✗] [✗] [✗]</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">U - Z</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="letter">U</div>
+                    <div class="description">Index & middle together, upward</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✗] [✗] Together</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">V</div>
+                    <div class="description">Index & middle in V shape</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✗] [✗] Spread</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">W</div>
+                    <div class="description">Three fingers spread in W</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✓] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">X</div>
+                    <div class="description">Index bent in hook shape</div>
+                    <div class="finger-pattern">[✗] [✓] [✗] [✗] [✗] Hooked</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">Y</div>
+                    <div class="description">Thumb & pinky extended (hang loose)</div>
+                    <div class="finger-pattern">[✓] [✗] [✗] [✗] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">Z</div>
+                    <div class="description">Index draws Z in air</div>
+                    <div class="finger-pattern">[✗] [✓] [✗] [✗] [✗] + Motion</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Numbers 0-9</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="letter">0</div>
+                    <div class="description">Closed fist / Circle with thumb & index</div>
+                    <div class="finger-pattern">[✗] [✗] [✗] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">1</div>
+                    <div class="description">Index finger extended</div>
+                    <div class="finger-pattern">[✗] [✓] [✗] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">2</div>
+                    <div class="description">Index & middle extended</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✗] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">3</div>
+                    <div class="description">Index, middle, ring extended</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✓] [✗]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">4</div>
+                    <div class="description">Four fingers extended (no thumb)</div>
+                    <div class="finger-pattern">[✗] [✓] [✓] [✓] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">5</div>
+                    <div class="description">All five fingers extended</div>
+                    <div class="finger-pattern">[✓] [✓] [✓] [✓] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">6</div>
+                    <div class="description">Four fingers down, thumb up</div>
+                    <div class="finger-pattern">[✓] [✗] [✓] [✓] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">7</div>
+                    <div class="description">Three fingers down, thumb up</div>
+                    <div class="finger-pattern">[✓] [✗] [✗] [✓] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">8</div>
+                    <div class="description">Two fingers down, thumb up</div>
+                    <div class="finger-pattern">[✓] [✗] [✗] [✗] [✓]</div>
+                </div>
+                
+                <div class="card">
+                    <div class="letter">9</div>
+                    <div class="description">Pinky down, thumb up</div>
+                    <div class="finger-pattern">[✓] [✗] [✗] [✗] [✓]</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="note">
+            <div class="note-title">⚠️ IMPORTANT NOTES</div>
+            <p><strong>Static vs. Motion:</strong> Some letters (J, Z) require motion which the app may not capture perfectly. The system will attempt to recognize the starting position.</p>
+            <p style="margin-top: 10px;"><strong>Similar Gestures:</strong> Some letters share similar hand shapes (like M/N, P/Q). Hold steady and ensure clear finger positioning for best recognition.</p>
+            <p style="margin-top: 10px;"><strong>Practice:</strong> The system learns your hand better over time. Practice each letter multiple times for optimal results.</p>
+        </div>
+    </div>
+    
+    <script>
+        function handleBack(event) {
+            // If opened from the main translator, close this window
+            if (window.opener && !window.opener.closed) {
+                event.preventDefault();
+                window.close();
+            }
+            // Otherwise, navigate to the translator page
+        }
+    </script>
+</body>
+</html>

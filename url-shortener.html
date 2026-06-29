@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Shortener</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #f8fafc;
+    }
+
+    .card {
+      width: min(760px, 100%);
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 22px;
+      padding: 28px 30px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.45);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: clamp(2rem, 4vw, 2.7rem);
+    }
+
+    p {
+      color: #cbd5e1;
+      margin-bottom: 24px;
+      line-height: 1.7;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    label {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+    }
+
+    input {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(15, 23, 42, 0.9);
+      color: #f8fafc;
+      padding: 14px 16px;
+      font-size: 1rem;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      background: #38bdf8;
+      color: #020617;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, background-color 0.18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: #22d3ee;
+    }
+
+    .status {
+      min-height: 22px;
+      margin: 10px 0 16px;
+      color: #bfdbfe;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 18px;
+    }
+
+    .table th,
+    .table td {
+      padding: 14px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .table th {
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .code {
+      display: inline-block;
+      background: rgba(148, 163, 184, 0.08);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      color: #e2e8f0;
+      word-break: break-word;
+    }
+
+    .small-note {
+      color: #94a3b8;
+      margin-top: 16px;
+      font-size: 0.95rem;
+    }
+
+    .top-link {
+      display: inline-block;
+      margin-top: 18px;
+      color: #7dd3fc;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>URL Shortener</h1>
+    <p>Create short links and track clicks in your browser storage.</p>
+
+    <div class="field-group">
+      <label for="long-url">Long URL</label>
+      <input id="long-url" type="url" placeholder="https://example.com/very/long/path" />
+    </div>
+
+    <div class="field-group">
+      <label for="custom-code">Custom alias (optional)</label>
+      <input id="custom-code" type="text" placeholder="my-link" />
+    </div>
+
+    <button id="shorten-btn">Generate short link</button>
+    <div id="status" class="status"></div>
+
+    <div id="result" class="field-group" style="display: none;">
+      <label>Short link</label>
+      <div class="code" id="short-link"></div>
+    </div>
+
+    <h2>Saved links</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Short code</th>
+          <th>Destination</th>
+          <th>Clicks</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody id="links-table"></tbody>
+    </table>
+
+    <p class="small-note">Note: This app stores link mappings and click counts in your browser. The short link works on this site when opened from the same browser.</p>
+    <a class="top-link" href="index.html">← Back to homepage</a>
+  </div>
+
+  <script>
+    const storageKey = 'url-shortener-links';
+    const linkInput = document.getElementById('long-url');
+    const aliasInput = document.getElementById('custom-code');
+    const button = document.getElementById('shorten-btn');
+    const statusEl = document.getElementById('status');
+    const resultEl = document.getElementById('result');
+    const shortLinkEl = document.getElementById('short-link');
+    const tableBody = document.getElementById('links-table');
+
+    function readLinks() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function writeLinks(links) {
+      localStorage.setItem(storageKey, JSON.stringify(links));
+    }
+
+    function generateCode() {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      return code;
+    }
+
+    function validateUrl(value) {
+      try {
+        const url = new URL(value.trim());
+        return url.href;
+      } catch {
+        return null;
+      }
+    }
+
+    function renderTable() {
+      const links = readLinks().sort((a, b) => b.createdAt - a.createdAt);
+      tableBody.innerHTML = '';
+
+      if (!links.length) {
+        tableBody.innerHTML = '<tr><td colspan="4" style="color:#94a3b8; padding:14px 12px;">No saved links yet.</td></tr>';
+        return;
+      }
+
+      for (const item of links) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><span class="code">${item.code}</span></td>
+          <td><a href="redirect.html?code=${encodeURIComponent(item.code)}" style="color:#7dd3fc; text-decoration:none;">${window.location.origin + window.location.pathname.replace(/[^/]*$/, '')}redirect.html?code=${encodeURIComponent(item.code)}</a></td>
+          <td>${item.clicks}</td>
+          <td>${new Date(item.createdAt).toLocaleString()}</td>
+        `;
+        tableBody.appendChild(row);
+      }
+    }
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.style.color = isError ? '#f87171' : '#bfdbfe';
+    }
+
+    function createShortLink(url, alias) {
+      const links = readLinks();
+      const normalizedAlias = alias.trim().replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+      let code = normalizedAlias || generateCode();
+
+      if (!code) {
+        setStatus('Provide a valid custom alias or let the app generate one.', true);
+        return null;
+      }
+
+      if (links.some((item) => item.code === code)) {
+        if (normalizedAlias) {
+          setStatus('That alias is already taken. Choose another.', true);
+          return null;
+        }
+        let tries = 0;
+        while (links.some((item) => item.code === code) && tries < 10) {
+          code = generateCode();
+          tries += 1;
+        }
+        if (links.some((item) => item.code === code)) {
+          setStatus('Unable to generate a unique short code. Try again.', true);
+          return null;
+        }
+      }
+
+      const newLink = {
+        code,
+        url,
+        clicks: 0,
+        createdAt: Date.now(),
+      };
+      links.push(newLink);
+      writeLinks(links);
+      return newLink;
+    }
+
+    button.addEventListener('click', () => {
+      const url = validateUrl(linkInput.value);
+      if (!url) {
+        setStatus('Please enter a valid URL starting with http:// or https://', true);
+        resultEl.style.display = 'none';
+        return;
+      }
+
+      const newLink = createShortLink(url, aliasInput.value);
+      if (!newLink) return;
+
+      const redirectUrl = `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, '')}redirect.html?code=${encodeURIComponent(newLink.code)}`;
+      shortLinkEl.textContent = redirectUrl;
+      resultEl.style.display = 'block';
+      renderTable();
+      setStatus('Short link created. Use the link above to redirect and track clicks.');
+    });
+
+    renderTable();
+  </script>
+</body>
+</html>

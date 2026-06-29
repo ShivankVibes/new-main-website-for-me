@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <div class="weather-card">
+      <h1>Real-Time Weather</h1>
+      <p class="subtitle">Search any city and get live weather from Open-Meteo.</p>
+
+      <div class="search-box">
+        <label for="city-input">City</label>
+        <input id="city-input" type="text" placeholder="e.g. San Francisco" />
+        <button id="search-button">Get Weather</button>
+      </div>
+
+      <div id="status" class="status"></div>
+
+      <div id="weather-container" class="weather-container hidden">
+        <div class="weather-summary">
+          <div>
+            <p class="weather-location" id="location"></p>
+            <p class="weather-description" id="description"></p>
+          </div>
+          <div class="weather-temp" id="temperature"></div>
+        </div>
+
+        <div class="weather-details">
+          <div>
+            <span>Wind</span>
+            <strong id="wind"></strong>
+          </div>
+          <div>
+            <span>Humidity</span>
+            <strong id="humidity"></strong>
+          </div>
+          <div>
+            <span>Pressure</span>
+            <strong id="pressure"></strong>
+          </div>
+          <div>
+            <span>Time</span>
+            <strong id="time"></strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

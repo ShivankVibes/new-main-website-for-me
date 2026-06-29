@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISL Hand Gesture Translator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap');
+        
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-card: #141937;
+            --accent-primary: #00ff88;
+            --accent-secondary: #00d4ff;
+            --accent-warning: #ff6b6b;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a8c4;
+            --shadow: 0 20px 60px rgba(0, 255, 136, 0.15);
+            --glow: 0 0 40px rgba(0, 255, 136, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridScroll 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes gridScroll {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+            animation: fadeIn 1s ease 0.3s both;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .video-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+        
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        #videoElement {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+        
+        #canvasElement {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+        }
+        
+        .gesture-display {
+            margin-top: 20px;
+            padding: 25px;
+            background: rgba(0, 255, 136, 0.05);
+            border-radius: 12px;
+            border: 2px solid rgba(0, 255, 136, 0.2);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .gesture-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .gesture-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent-primary);
+            text-shadow: var(--glow);
+            font-family: 'Space Mono', monospace;
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 0 0 20px rgba(0, 255, 136, 0.5); }
+            50% { text-shadow: 0 0 30px rgba(0, 255, 136, 0.8); }
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            box-shadow: var(--shadow);
+            animation: slideInRight 0.8s ease;
+        }
+        
+        .panel-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--accent-primary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+        
+        .text-output {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 150px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--accent-secondary);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        
+        .text-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .text-output::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        .text-output::-webkit-scrollbar-thumb {
+            background: var(--accent-secondary);
+            border-radius: 4px;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        button span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn-start {
+            background: linear-gradient(135deg, var(--accent-primary), #00cc77);
+            color: var(--bg-dark);
+            grid-column: 1 / -1;
+        }
+        
+        .btn-start:hover {
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-stop {
+            background: var(--accent-warning);
+            color: white;
+            grid-column: 1 / -1;
+        }
+        
+        .btn-stop:hover {
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-clear {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-clear:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-save {
+            background: var(--accent-secondary);
+            color: var(--bg-dark);
+        }
+        
+        .btn-save:hover {
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-guide {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 255, 136, 0.2));
+            color: var(--text-primary);
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-guide:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(0, 255, 136, 0.4));
+            border-color: #00d4ff;
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-guide span {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .gesture-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .gesture-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--accent-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .gesture-item:hover {
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .gesture-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .gesture-pattern {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-warning);
+            margin-left: 10px;
+            animation: blink 2s ease-in-out infinite;
+        }
+        
+        .status-indicator.active {
+            background: var(--accent-primary);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ISL Translator</h1>
+            <p class="subtitle">Real-time Indian Sign Language Recognition • A-Z Alphabet + Numbers + Phrases</p>
+        </header>
+        
+        <div class="main-grid">
+            <div class="video-section">
+                <div class="video-wrapper">
+                    <video id="videoElement" autoplay playsinline></video>
+                    <canvas id="canvasElement"></canvas>
+                </div>
+                
+                <div class="gesture-display">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div class="gesture-label">Current Gesture</div>
+                        <button class="btn-guide" onclick="openGuide()" title="Open Alphabet Reference">
+                            <span>📖 A-Z Guide</span>
+                        </button>
+                    </div>
+                    <div class="gesture-value" id="gestureDisplay">Ready</div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="panel">
+                    <div class="panel-title">
+                        Recognized Text
+                        <span class="status-indicator" id="statusIndicator"></span>
+                    </div>
+                    <div class="text-output" id="textOutput">Your recognized gestures will appear here...</div>
+                    <div class="controls">
+                        <button class="btn-start" id="startBtn" onclick="startCamera()">
+                            <span>Start Camera</span>
+                        </button>
+                        <button class="btn-stop hidden" id="stopBtn" onclick="stopCamera()">
+                            <span>Stop Camera</span>
+                        </button>
+                        <button class="btn-clear" onclick="clearText()">
+                            <span>Clear</span>
+                        </button>
+                        <button class="btn-save" onclick="saveText()">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <div class="panel-title">Quick Reference</div>
+                    <div class="gesture-list">
+                        <div class="gesture-item">
+                            <span class="gesture-name">Alphabet</span>
+                            <span class="gesture-pattern">A-Z</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-name">Numbers</span>
+                            <span class="gesture-pattern">0-9</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-name">Hello</span>
+                            <span class="gesture-pattern">Open Palm</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-name">Yes/Good</span>
+                            <span class="gesture-pattern">👍</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-name">OK</span>
+                            <span class="gesture-pattern">👌</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-name">Thank You</span>
+                            <span class="gesture-pattern">Tips Together</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-name">I Love You</span>
+                            <span class="gesture-pattern">🤟</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let hands, camera;
+        let recognizedText = "";
+        let currentGesture = "None";
+        let gestureBuffer = [];
+        let lastGestureTime = 0;
+        const GESTURE_COOLDOWN = 1500; // ms
+        const BUFFER_SIZE = 15;
+        
+        const videoElement = document.getElementById('videoElement');
+        const canvasElement = document.getElementById('canvasElement');
+        const canvasCtx = canvasElement.getContext('2d');
+        const gestureDisplay = document.getElementById('gestureDisplay');
+        const textOutput = document.getElementById('textOutput');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        
+        function calculateDistance(point1, point2) {
+            return Math.sqrt(
+                Math.pow(point1.x - point2.x, 2) +
+                Math.pow(point1.y - point2.y, 2)
+            );
+        }
+        
+        function getFingerStates(landmarks) {
+            const fingerTips = [4, 8, 12, 16, 20];
+            const fingerPips = [2, 6, 10, 14, 18];
+            const fingersUp = [];
+            
+            // Thumb (check x-coordinate)
+            if (landmarks[fingerTips[0]].x < landmarks[fingerPips[0]].x) {
+                fingersUp.push(1);
+            } else {
+                fingersUp.push(0);
+            }
+            
+            // Other fingers (check y-coordinate)
+            for (let i = 1; i < 5; i++) {
+                if (landmarks[fingerTips[i]].y < landmarks[fingerPips[i]].y) {
+                    fingersUp.push(1);
+                } else {
+                    fingersUp.push(0);
+                }
+            }
+            
+            return fingersUp;
+        }
+        
+        function recognizeGesture(landmarks) {
+            const fingers = getFingerStates(landmarks);
+            const fingersCount = fingers.reduce((a, b) => a + b, 0);
+            
+            const thumbTip = landmarks[4];
+            const indexTip = landmarks[8];
+            const middleTip = landmarks[12];
+            const ringTip = landmarks[16];
+            const pinkyTip = landmarks[20];
+            const wrist = landmarks[0];
+            
+            // Get additional landmarks for more precise recognition
+            const thumbIP = landmarks[3];
+            const indexPIP = landmarks[6];
+            const indexDIP = landmarks[7];
+            const middlePIP = landmarks[10];
+            const ringPIP = landmarks[14];
+            const pinkyPIP = landmarks[18];
+            
+            // Calculate hand orientation
+            const palmBase = landmarks[0];
+            const middleBase = landmarks[9];
+            const handAngle = Math.atan2(middleBase.y - palmBase.y, middleBase.x - palmBase.x);
+            
+            // ISL ALPHABET A-Z
+            
+            // A - Closed fist with thumb on side
+            if (fingersCount === 0 || (fingers.join('') === '10000' && thumbTip.x > indexPIP.x)) {
+                return "A";
+            }
+            
+            // B - All four fingers extended upward, thumb across palm
+            if (fingers.join('') === '01111') {
+                const thumbAcrossPalm = thumbTip.x > indexPIP.x && thumbTip.x < middlePIP.x;
+                if (thumbAcrossPalm) return "B";
+            }
+            
+            // C - Curved hand forming C shape
+            if (fingersCount === 5) {
+                const curved = calculateDistance(thumbTip, indexTip) > 0.15 &&
+                              calculateDistance(thumbTip, pinkyTip) > 0.15;
+                if (curved && thumbTip.y < wrist.y) return "C";
+            }
+            
+            // D - Index finger up, thumb and other fingers form O
+            if (fingers.join('') === '01000') {
+                const thumbToMiddle = calculateDistance(thumbTip, middleTip);
+                if (thumbToMiddle < 0.06) return "D";
+                return "I"; // Letter I also uses index finger
+            }
+            
+            // E - All fingers bent, thumb across
+            if (fingersCount === 0) {
+                const thumbAcross = thumbTip.y > indexPIP.y && thumbTip.y < indexTip.y;
+                if (thumbAcross) return "E";
+            }
+            
+            // F - Index, middle, ring together; thumb touches index; pinky extended
+            if (fingers.join('') === '10001') {
+                const thumbTouchingIndex = calculateDistance(thumbTip, indexTip) < 0.05;
+                if (thumbTouchingIndex) return "F";
+                return "Call Me"; // Alternate meaning
+            }
+            
+            // G - Index finger and thumb pointing sideways (like pointing)
+            if (fingers.join('') === '11000') {
+                const pointing = Math.abs(indexTip.x - thumbTip.x) > 0.1;
+                if (pointing) return "G";
+            }
+            
+            // H - Index and middle fingers extended sideways
+            if (fingers.join('') === '01100') {
+                const sideways = Math.abs(indexTip.y - middleTip.y) < 0.05;
+                if (sideways) return "H";
+            }
+            
+            // I - Pinky finger extended (already covered above as Point)
+            if (fingers.join('') === '00001') return "I";
+            
+            // J - Pinky extended with J motion (static recognition)
+            if (fingers.join('') === '00001') {
+                const pinkyLow = pinkyTip.y > wrist.y;
+                if (pinkyLow) return "J";
+            }
+            
+            // K - Index and middle up, thumb between them
+            if (fingers.join('') === '01100') {
+                const thumbBetween = thumbTip.y < indexTip.y && thumbTip.y < middleTip.y;
+                if (thumbBetween) return "K";
+            }
+            
+            // L - Thumb and index form L shape
+            if (fingers.join('') === '11000') {
+                const angle = Math.abs(Math.atan2(indexTip.y - wrist.y, indexTip.x - wrist.x) - 
+                                      Math.atan2(thumbTip.y - wrist.y, thumbTip.x - wrist.x));
+                if (angle > Math.PI/4 && angle < Math.PI/2 + Math.PI/4) return "L";
+            }
+            
+            // M - Three fingers down over thumb
+            if (fingers.join('') === '00111') return "M";
+            
+            // N - Two fingers down over thumb
+            if (fingers.join('') === '00011') return "N";
+            
+            // O - All fingertips touch forming circle
+            if (fingersCount === 5) {
+                const circle = calculateDistance(thumbTip, indexTip) < 0.05 &&
+                              calculateDistance(indexTip, middleTip) < 0.05 &&
+                              calculateDistance(middleTip, ringTip) < 0.05;
+                if (circle) return "O";
+            }
+            
+            // P - Index and middle down, pointing down
+            if (fingers.join('') === '01100') {
+                const pointingDown = indexTip.y > wrist.y;
+                if (pointingDown) return "P";
+            }
+            
+            // Q - Thumb and index pointing down
+            if (fingers.join('') === '11000') {
+                const pointingDown = thumbTip.y > wrist.y && indexTip.y > wrist.y;
+                if (pointingDown) return "Q";
+            }
+            
+            // R - Index and middle crossed
+            if (fingers.join('') === '01100') {
+                const crossed = Math.abs(indexTip.x - middleTip.x) < 0.03;
+                if (crossed) return "R";
+            }
+            
+            // S - Fist with thumb across front
+            if (fingersCount === 1 && fingers[0] === 1) {
+                const thumbAcrossFront = thumbTip.z > indexPIP.z;
+                if (thumbAcrossFront) return "S";
+            }
+            
+            // T - Thumb between index and middle
+            if (fingers.join('') === '10000') {
+                const between = thumbTip.y > indexPIP.y && thumbTip.y < indexTip.y;
+                if (between) return "T";
+            }
+            
+            // U - Index and middle together, extended up
+            if (fingers.join('') === '01100') {
+                const together = calculateDistance(indexTip, middleTip) < 0.04;
+                const upward = indexTip.y < wrist.y;
+                if (together && upward) return "U";
+            }
+            
+            // V - Index and middle extended in V (already covered)
+            if (fingers.join('') === '01100') {
+                const distance = calculateDistance(indexTip, middleTip);
+                if (distance > 0.1) return "V";
+            }
+            
+            // W - Three fingers extended in W shape
+            if (fingers.join('') === '01110') {
+                const spread = calculateDistance(indexTip, middleTip) > 0.05 &&
+                              calculateDistance(middleTip, ringTip) > 0.05;
+                if (spread) return "W";
+            }
+            
+            // X - Index finger bent in hook shape
+            if (fingers.join('') === '01000') {
+                const hooked = indexDIP.y < indexTip.y;
+                if (hooked) return "X";
+            }
+            
+            // Y - Thumb and pinky extended (hang loose)
+            if (fingers.join('') === '10001') return "Y";
+            
+            // Z - Index finger makes Z motion (static: index pointing)
+            if (fingers.join('') === '01000') return "Z";
+            
+            // NUMBERS 0-9
+            if (fingersCount === 0) return "0";
+            if (fingers.join('') === '10000') {
+                if (thumbTip.y < indexTip.y - 0.1) return "Good";
+                if (thumbTip.y > indexTip.y + 0.1) return "Bad";
+                return "1";
+            }
+            if (fingers.join('') === '01100') return "2";
+            if (fingers.join('') === '01110') return "3";
+            if (fingers.join('') === '01111') return "4";
+            if (fingersCount === 5) {
+                const spread = calculateDistance(thumbTip, pinkyTip) > 0.2;
+                if (spread) return "5";
+                return "Hello";
+            }
+            if (fingers.join('') === '11111') return "5";
+            if (fingers.join('') === '01111' && thumbTip.y < wrist.y) return "6";
+            if (fingers.join('') === '00111' && thumbTip.y < wrist.y) return "7";
+            if (fingers.join('') === '00011' && thumbTip.y < wrist.y) return "8";
+            if (fingers.join('') === '00001' && thumbTip.y < wrist.y) return "9";
+            
+            // COMMON PHRASES
+            if (fingers.join('') === '11000') {
+                const distance = calculateDistance(thumbTip, indexTip);
+                if (distance < 0.05) return "OK";
+            }
+            
+            if (fingersCount === 5) {
+                const tipsClose = (
+                    calculateDistance(thumbTip, indexTip) < 0.08 &&
+                    calculateDistance(indexTip, middleTip) < 0.08
+                );
+                if (tipsClose) return "Thank You";
+            }
+            
+            if (fingers.join('') === '11001') return "I Love You";
+            
+            return "·"; // Return dot for unknown to avoid cluttering output
+        }
+        
+        function stabilizeGesture(gesture) {
+            gestureBuffer.push(gesture);
+            if (gestureBuffer.length > BUFFER_SIZE) {
+                gestureBuffer.shift();
+            }
+            
+            if (gestureBuffer.length >= 10) {
+                const counts = {};
+                gestureBuffer.forEach(g => counts[g] = (counts[g] || 0) + 1);
+                const mostCommon = Object.keys(counts).reduce((a, b) => 
+                    counts[a] > counts[b] ? a : b
+                );
+                
+                if (counts[mostCommon] >= 7) {
+                    return mostCommon;
+                }
+            }
+            
+            return currentGesture;
+        }
+        
+        function addToText(gesture) {
+            const now = Date.now();
+            if (now - lastGestureTime > GESTURE_COOLDOWN) {
+                if (gesture !== "Unknown" && gesture !== "None" && gesture !== "·") {
+                    // For single letters (A-Z), add without space
+                    if (gesture.length === 1 && gesture.match(/[A-Z]/)) {
+                        recognizedText += gesture;
+                    } else if (gesture.match(/^[0-9]$/)) {
+                        // For single digits, add without space
+                        recognizedText += gesture;
+                    } else {
+                        // For words/phrases, add with space
+                        recognizedText += gesture + " ";
+                    }
+                    textOutput.textContent = recognizedText || "Your recognized gestures will appear here...";
+                    textOutput.scrollTop = textOutput.scrollHeight;
+                    lastGestureTime = now;
+                }
+            }
+        }
+        
+        function onResults(results) {
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+            
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            
+            if (results.multiHandLandmarks) {
+                for (const landmarks of results.multiHandLandmarks) {
+                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+                        color: '#00ff88',
+                        lineWidth: 3
+                    });
+                    drawLandmarks(canvasCtx, landmarks, {
+                        color: '#00d4ff',
+                        fillColor: '#ffffff',
+                        lineWidth: 2,
+                        radius: 4
+                    });
+                    
+                    const gesture = recognizeGesture(landmarks);
+                    const stableGesture = stabilizeGesture(gesture);
+                    
+                    if (stableGesture !== currentGesture) {
+                        currentGesture = stableGesture;
+                        gestureDisplay.textContent = currentGesture;
+                        addToText(currentGesture);
+                    }
+                }
+            } else {
+                currentGesture = "None";
+                gestureDisplay.textContent = "No Hand Detected";
+            }
+            
+            canvasCtx.restore();
+        }
+        
+        async function startCamera() {
+            try {
+                startBtn.classList.add('hidden');
+                stopBtn.classList.remove('hidden');
+                statusIndicator.classList.add('active');
+                gestureDisplay.textContent = "Loading...";
+                
+                hands = new Hands({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                    }
+                });
+                
+                hands.setOptions({
+                    maxNumHands: 2,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.5
+                });
+                
+                hands.onResults(onResults);
+                
+                camera = new Camera(videoElement, {
+                    onFrame: async () => {
+                        await hands.send({ image: videoElement });
+                    },
+                    width: 1280,
+                    height: 720
+                });
+                
+                await camera.start();
+                gestureDisplay.textContent = "Ready";
+                
+            } catch (error) {
+                console.error('Error starting camera:', error);
+                gestureDisplay.textContent = "Camera Error";
+                alert('Could not access camera. Please check permissions.');
+                stopCamera();
+            }
+        }
+        
+        function stopCamera() {
+            if (camera) {
+                camera.stop();
+            }
+            if (hands) {
+                hands.close();
+            }
+            
+            const stream = videoElement.srcObject;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            
+            startBtn.classList.remove('hidden');
+            stopBtn.classList.add('hidden');
+            statusIndicator.classList.remove('active');
+            gestureDisplay.textContent = "Stopped";
+        }
+        
+        function clearText() {
+            recognizedText = "";
+            textOutput.textContent = "Your recognized gestures will appear here...";
+        }
+        
+        function saveText() {
+            if (recognizedText.trim()) {
+                const blob = new Blob([recognizedText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `isl_output_${Date.now()}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+            } else {
+                alert('No text to save!');
+            }
+        }
+        
+        function openGuide() {
+            // Try to open the guide in a new window
+            const guideWindow = window.open('isl_alphabet_guide.html', '_blank', 'width=1200,height=800');
+            
+            // If popup blocked or guide file not found, create an inline guide
+            if (!guideWindow) {
+                alert('Please allow popups to view the alphabet guide, or open "isl_alphabet_guide.html" manually in a new tab.');
+            }
+        }
+        
+        // Load MediaPipe drawing utilities
+        const HAND_CONNECTIONS = [
+            [0, 1], [1, 2], [2, 3], [3, 4],
+            [0, 5], [5, 6], [6, 7], [7, 8],
+            [0, 9], [9, 10], [10, 11], [11, 12],
+            [0, 13], [13, 14], [14, 15], [15, 16],
+            [0, 17], [17, 18], [18, 19], [19, 20],
+            [5, 9], [9, 13], [13, 17]
+        ];
+        
+        function drawConnectors(ctx, landmarks, connections, style) {
+            ctx.strokeStyle = style.color;
+            ctx.lineWidth = style.lineWidth;
+            
+            connections.forEach(([start, end]) => {
+                const startPoint = landmarks[start];
+                const endPoint = landmarks[end];
+                
+                ctx.beginPath();
+                ctx.moveTo(startPoint.x * ctx.canvas.width, startPoint.y * ctx.canvas.height);
+                ctx.lineTo(endPoint.x * ctx.canvas.width, endPoint.y * ctx.canvas.height);
+                ctx.stroke();
+            });
+        }
+        
+        function drawLandmarks(ctx, landmarks, style) {
+            landmarks.forEach(landmark => {
+                ctx.beginPath();
+                ctx.arc(
+                    landmark.x * ctx.canvas.width,
+                    landmark.y * ctx.canvas.height,
+                    style.radius,
+                    0,
+                    2 * Math.PI
+                );
+                ctx.fillStyle = style.fillColor;
+                ctx.fill();
+                ctx.strokeStyle = style.color;
+                ctx.lineWidth = style.lineWidth;
+                ctx.stroke();
+            });
+        }
+    </script>
+</body>
+</html>

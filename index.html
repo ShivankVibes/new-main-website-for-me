@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Shivank — Developer, Maker & 3D Printing specialist from Hyderabad. Building websites, Arduino projects, and high-quality 3D prints." />
+  <meta name="keywords" content="Shivank, web developer, 3D printing, Arduino, Bambu Lab, portfolio, Hyderabad" />
+  <meta name="author" content="Shivank" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://shivankvibes-060612.netlify.app/" />
+  <meta property="og:title"       content="Shivank — Developer, Maker & 3D Printer" />
+  <meta property="og:description" content="Building websites, creating Arduino projects, and bringing ideas to life through code and 3D printing." />
+  <meta property="og:image"       content="https://shivankvibes-060612.netlify.app/images/og-image.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Shivank — Developer, Maker & 3D Printer" />
+  <meta name="twitter:description" content="Building websites, Arduino projects, and 3D prints." />
+
+  <link rel="canonical" href="https://shivankvibes-060612.netlify.app/" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+
+  <title>Shivank — Developer, Maker & 3D Printer</title>
+</head>
+<body>
+
+<!-- ── Scroll Progress ──────────────────────────────────────────────────────── -->
+<div id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ── Mouse Spotlight ─────────────────────────────────────────────────────── -->
+<div id="mouse-spotlight" aria-hidden="true"></div>
+
+<!-- ── Navigation ──────────────────────────────────────────────────────────── -->
+<header>
+  <nav class="navbar" aria-label="Main navigation">
+    <div class="nav-inner">
+
+      <!-- Logo -->
+      <a href="#home" class="nav-logo" aria-label="Shivank — Home">
+        <div class="nav-logo-mark" aria-hidden="true">S</div>
+        SHIVANK
+      </a>
+
+      <!-- Links -->
+      <div class="nav-links-wrap" id="nav-menu" role="list">
+        <a href="#home"      class="nav-link active" role="listitem">Home</a>
+        <a href="#about"     class="nav-link"        role="listitem">About</a>
+        <a href="#skills"    class="nav-link"        role="listitem">Skills</a>
+        <a href="#services"  class="nav-link"        role="listitem">Services</a>
+        <a href="#projects"  class="nav-link"        role="listitem">Projects</a>
+        <a href="#printing"  class="nav-link"        role="listitem">3D Printing</a>
+        <a href="https://youtube.com/@shivankvibes" target="_blank" rel="noopener" class="nav-link" role="listitem">YouTube</a>
+        <a href="#contact"   class="nav-link"        role="listitem">Contact</a>
+      </div>
+
+      <!-- Right controls -->
+      <div class="nav-right">
+        <button id="theme-toggle" class="nav-theme-btn" aria-label="Switch to light mode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+
+        <!-- Hamburger for mobile -->
+        <button id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-menu">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
+      </div>
+
+    </div>
+  </nav>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════════════════════════════ -->
+<section id="home" class="hero-section" aria-label="Introduction">
+
+  <!-- Background effects -->
+  <div class="hero-grid-bg"  aria-hidden="true"></div>
+  <div class="hero-blob hero-blob-1" aria-hidden="true"></div>
+  <div class="hero-blob hero-blob-2" aria-hidden="true"></div>
+  <div class="hero-blob hero-blob-3" aria-hidden="true"></div>
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+  <div class="hero-content">
+
+    <!-- Status badge -->
+    <div class="hero-badge" role="status">
+      <span class="hero-badge-dot" aria-hidden="true"></span>
+      Available for projects &amp; collaborations
+    </div>
+
+    <!-- Name -->
+    <h1 class="hero-title gradient-text">SHIVANK</h1>
+
+    <!-- Animated subtitle -->
+    <p class="hero-subtitle" aria-live="polite">
+      <span id="typing-text">Developer</span><span class="cursor" aria-hidden="true"></span>
+    </p>
+
+    <!-- Description -->
+    <p class="hero-description">
+      Building websites, creating Arduino projects, and bringing ideas to life through code and 3D printing.
+    </p>
+
+    <!-- CTA Buttons -->
+    <div class="hero-actions">
+      <a href="#projects" class="btn btn-primary" id="hero-view-projects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
+        View Projects
+      </a>
+      <a href="#contact" class="btn btn-secondary" id="hero-contact">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Contact Me
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" role="list" aria-label="Quick stats">
+      <div class="stat-item" role="listitem">
+        <div class="stat-number counter" data-target="10" data-suffix="+">10+</div>
+        <div class="stat-label">Projects Built</div>
+      </div>
+      <div class="stat-item" role="listitem">
+        <div class="stat-number counter" data-target="3" data-suffix=" yrs">3 yrs</div>
+        <div class="stat-label">Coding</div>
+      </div>
+      <div class="stat-item" role="listitem">
+        <div class="stat-number counter" data-target="5" data-suffix="+">5+</div>
+        <div class="stat-label">Languages</div>
+      </div>
+      <div class="stat-item" role="listitem">
+        <div class="stat-number">∞</div>
+        <div class="stat-label">Curiosity</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="scroll-indicator" aria-hidden="true">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     ABOUT
+══════════════════════════════════════════════════════════════════════════════ -->
+<section id="about" class="about-section section" aria-labelledby="about-heading">
+  <div class="container">
+    <div class="about-grid">
+
+      <!-- Avatar -->
+      <div class="about-avatar-wrap reveal-left">
+        <div class="about-avatar-frame float-anim">
+          <div class="about-avatar glass-card">
+            <div class="avatar-emoji" aria-hidden="true">👨‍💻</div>
+          </div>
+          <div class="avatar-badge">🇮🇳 Hyderabad, India</div>
+        </div>
+      </div>
+
+      <!-- Text -->
+      <div class="about-text reveal-right">
+        <div class="about-eyebrow">
+          <span class="section-eyebrow">About Me</span>
+        </div>
+        <h2 id="about-heading" class="about-title">Hi, I'm <span class="gradient-text">Shivank</span></h2>
+        <div class="about-text">
+          <p>I'm a student from Hyderabad who enjoys building software, designing websites, experimenting with Arduino, and creating high-quality 3D prints.</p>
+          <p>I love solving problems through technology and continuously learning new skills. Whether it's a landing page, an embedded system, or a multicolor 3D model — I enjoy the entire process of taking an idea from concept to reality.</p>
+          <p>Currently exploring the intersection of hardware and software, with a focus on building useful tools and sharing the journey on YouTube.</p>
+        </div>
+
+        <div class="about-chips" role="list" aria-label="Interests">
+          <span class="about-chip" role="listitem">⚡ Web Development</span>
+          <span class="about-chip" role="listitem">🤖 Arduino & ESP32</span>
+          <span class="about-chip" role="listitem">🖨️ 3D Printing</span>
+          <span class="about-chip" role="listitem">🎵 Electronic Music</span>
+          <span class="about-chip" role="listitem">📹 YouTube</span>
+          <span class="about-chip" role="listitem">🐍 Python</span>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+          <a href="#contact" class="btn btn-primary btn-sm">Get in Touch</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="section-divider" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SKILLS
+══════════════════════════════════════════════════════════════════════════════ -->
+<section id="skills" class="skills-section section" aria-labelledby="skills-heading">
+  <div class="container">
+
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Expertise</span>
+      <h2 id="skills-heading" class="section-title">Skills &amp; Tools</h2>
+      <p class="section-subtitle">Technologies I work with — from web to hardware.</p>
+    </div>
+
+    <div class="skills-categories">
+
+      <!-- Languages -->
+      <div class="skill-category reveal" data-delay="0">
+        <div class="skill-category-header">
+          <span class="skill-category-icon" aria-hidden="true">💻</span>
+          <span class="skill-category-title">Languages</span>
+        </div>
+        <div class="skills-grid">
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">HTML &amp; CSS</span>
+              <span class="skill-pct">90%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" aria-label="HTML and CSS proficiency">
+              <div class="skill-bar-fill" data-pct="90"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">JavaScript</span>
+              <span class="skill-pct">75%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="JavaScript proficiency">
+              <div class="skill-bar-fill" data-pct="75"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Python</span>
+              <span class="skill-pct">80%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" aria-label="Python proficiency">
+              <div class="skill-bar-fill" data-pct="80"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Arduino C++</span>
+              <span class="skill-pct">70%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="Arduino C++ proficiency">
+              <div class="skill-bar-fill" data-pct="70"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Technologies -->
+      <div class="skill-category reveal" data-delay="100">
+        <div class="skill-category-header">
+          <span class="skill-category-icon" aria-hidden="true">🛠️</span>
+          <span class="skill-category-title">Technologies</span>
+        </div>
+        <div class="skills-grid">
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Git &amp; GitHub</span>
+              <span class="skill-pct">80%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" aria-label="Git proficiency">
+              <div class="skill-bar-fill" data-pct="80"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">VS Code</span>
+              <span class="skill-pct">95%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100" aria-label="VS Code proficiency">
+              <div class="skill-bar-fill" data-pct="95"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Netlify</span>
+              <span class="skill-pct">85%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100" aria-label="Netlify proficiency">
+              <div class="skill-bar-fill" data-pct="85"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Arduino IDE</span>
+              <span class="skill-pct">78%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100" aria-label="Arduino IDE proficiency">
+              <div class="skill-bar-fill" data-pct="78"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hardware -->
+      <div class="skill-category reveal" data-delay="200">
+        <div class="skill-category-header">
+          <span class="skill-category-icon" aria-hidden="true">⚙️</span>
+          <span class="skill-category-title">Hardware</span>
+        </div>
+        <div class="skills-grid">
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Bambu Lab A1</span>
+              <span class="skill-pct">92%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100" aria-label="Bambu Lab A1 proficiency">
+              <div class="skill-bar-fill" data-pct="92"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Raspberry Pi</span>
+              <span class="skill-pct">70%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="Raspberry Pi proficiency">
+              <div class="skill-bar-fill" data-pct="70"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Arduino Uno</span>
+              <span class="skill-pct">80%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" aria-label="Arduino Uno proficiency">
+              <div class="skill-bar-fill" data-pct="80"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Arduino Mega</span>
+              <span class="skill-pct">75%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="Arduino Mega proficiency">
+              <div class="skill-bar-fill" data-pct="75"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">ESP32 / ESP8266</span>
+              <span class="skill-pct">72%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="ESP32 and ESP8266 proficiency">
+              <div class="skill-bar-fill" data-pct="72"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-row">
+              <span class="skill-name">Other ESP Boards</span>
+              <span class="skill-pct">65%</span>
+            </div>
+            <div class="skill-bar" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Other ESP boards proficiency">
+              <div class="skill-bar-fill" data-pct="65"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="section-divider" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SERVICES
+══════════════════════════════════════════════════════════════════════════════ -->
+<section id="services" class="services-section section" aria-labelledby="services-heading">
+  <div class="container">
+
+    <div class="section-header reveal">
+      <span class="section-eyebrow">What I Offer</span>
+      <h2 id="services-heading" class="section-title">Services</h2>
+      <p class="section-subtitle">From pixel-perfect websites to physical 3D prototypes.</p>
+    </div>
+
+    <div class="services-grid">
+
+      <!-- Website Dev -->
+      <article class="service-card reveal" data-delay="0" aria-labelledby="svc-web-title">
+        <span class="service-icon" aria-hidden="true">🌐</span>
+        <h3 id="svc-web-title" class="service-title">Website Development</h3>
+        <p class="service-description">Custom, responsive websites built with clean HTML, CSS and JavaScript — no bloated frameworks, just fast and beautiful code.</p>
+        <ul class="service-features" aria-label="Service features">
+          <li class="service-feature">Landing pages</li>
+          <li class="service-feature">Portfolio websites</li>
+          <li class="service-feature">School &amp; business projects</li>
+          <li class="service-feature">Responsive design</li>
+          <li class="service-feature">SEO optimized</li>
+        </ul>
+      </article>
+
+      <!-- Programming -->
+      <article class="service-card reveal" data-delay="80" aria-labelledby="svc-prog-title">
+        <span class="service-icon" aria-hidden="true">🐍</span>
+        <h3 id="svc-prog-title" class="service-title">Programming Help</h3>
+        <p class="service-description">Python scripts, Arduino firmware, automation tools, and debugging help for your projects — whether it's a school assignment or a personal build.</p>
+        <ul class="service-features" aria-label="Service features">
+          <li class="service-feature">Python scripting</li>
+          <li class="service-feature">Arduino / ESP32 firmware</li>
+          <li class="service-feature">Automation &amp; tools</li>
+          <li class="service-feature">Debugging &amp; review</li>
+          <li class="service-feature">School projects</li>
+        </ul>
+      </article>
+
+      <!-- 3D Printing -->
+      <article class="service-card reveal" data-delay="160" aria-labelledby="svc-3d-title">
+        <span class="service-icon" aria-hidden="true">🖨️</span>
+        <h3 id="svc-3d-title" class="service-title">3D Printing</h3>
+        <p class="service-description">High-quality FDM prints using the Bambu Lab A1 with AMS Lite for multicolor output. Fast turnaround, multiple materials, prototypes to display models.</p>
+        <ul class="service-features" aria-label="Service features">
+          <li class="service-feature">Multicolor printing</li>
+          <li class="service-feature">Prototypes &amp; models</li>
+          <li class="service-feature">School &amp; science projects</li>
+          <li class="service-feature">Replacement parts</li>
+          <li class="service-feature">PLA, PETG &amp; more</li>
+        </ul>
+      </article>
+
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center;margin-top:48px;" class="reveal">
+      <p style="color:var(--text-muted);margin-bottom:20px;">Have a project in mind? Let's talk about it.</p>
+      <a href="mailto:shivankpro23@gmail.com" class="btn btn-primary" id="services-contact-cta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Start a Project
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<div class="section-divider" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PROJECTS
+══════════════════════════════════════════════════════════════════════════════ -->
+<section id="projects" class="projects-section section" aria-labelledby="projects-heading">
+  <div class="container">
+
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Featured Work</span>
+      <h2 id="projects-heading" class="section-title">Projects</h2>
+      <p class="section-subtitle">A selection of things I've built and shipped.</p>
+    </div>
+
+    <div class="projects-grid">
+
+      <!-- Dvarabell -->
+      <!-- Dvarabell -->
+      <article class="project-card reveal" data-delay="0" aria-labelledby="proj-dvarabell-title">
+        <div class="project-img-wrap">
+          <img src="images/project-dvarabell.png" alt="Dvarabell — smart doorbell product website" class="project-img" loading="lazy" width="600" height="375" />
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag tag-green">JavaScript</span>
+          </div>
+          <h3 id="proj-dvarabell-title" class="project-title">Dvarabell</h3>
+          <p class="project-description">A modern product release portal for Dvarabell — a smart doorbell solution. Clean landing page with product showcase, feature highlights, and a polished release experience.</p>
+          <div class="project-actions">
+            <a href="https://dvarabell-release-portal.netlify.app/" target="_blank" rel="noopener" class="btn btn-sm btn-primary" id="proj-dvarabell-demo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              View Project
+            </a>
+            <a href="https://github.com/ShivankVibes" target="_blank" rel="noopener" class="btn btn-sm btn-secondary" id="proj-dvarabell-code">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- The Bharatheya Vidhya Kendhra -->
+      <article class="project-card reveal" data-delay="80" aria-labelledby="proj-bvk-title">
+        <div class="project-img-wrap">
+          <img src="images/project-college.png" alt="The Bharatheya Vidhya Kendhra — India education empire simulation game with clean vs corrupt path choices" class="project-img" loading="lazy" width="600" height="375" />
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="tag tag-purple">Simulation Game</span>
+            <span class="tag tag-green">JavaScript</span>
+            <span class="tag">Moral Choices</span>
+            <span class="tag">Narrative</span>
+          </div>
+          <h3 id="proj-bvk-title" class="project-title">The Bharatheya Vidhya Kendhra</h3>
+          <p class="project-description">An interactive education empire simulation set in India. Start a small school and grow it into the country's biggest education conglomerate — but choose your path: stay clean and build trust, or take the corrupt route for faster gains. Every decision has consequences.</p>
+          <div class="project-actions">
+            <a href="https://the-bharat-college-of-technology.vercel.app/" target="_blank" rel="noopener" class="btn btn-sm btn-primary" id="proj-bvk-demo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Play Now
+            </a>
+            <a href="https://github.com/ShivankVibes" target="_blank" rel="noopener" class="btn btn-sm btn-secondary" id="proj-bvk-code">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              Source Code
+            </a>
+          </div>
+        </div>
+      </article>
+
+
+      <!-- ClarkOS -->
+      <article class="project-card reveal" data-delay="0" aria-labelledby="proj-clarcos-title">
+        <div class="project-img-wrap">
+          <img src="images/project-clarcos.png" alt="ClarkOS — AI voice assistant that syncs with Spotify, Gmail and more" class="project-img" loading="lazy" width="600" height="375" />
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="tag tag-purple">Voice AI</span>
+            <span class="tag tag-green">JavaScript</span>
+            <span class="tag">Spotify API</span>
+            <span class="tag">Gmail API</span>
+            <span class="tag tag-green" style="background:rgba(239,68,68,0.12);color:#EF4444;border-color:rgba(239,68,68,0.2);">🔧 In Development</span>
+          </div>
+          <h3 id="proj-clarcos-title" class="project-title">ClarkOS</h3>
+          <p class="project-description">A personal AI voice assistant that syncs with your life — control Spotify playback, read & send Gmail, manage calendars, and more, all by voice. Built to be your always-on intelligent hub, deeply integrated with the services you use every day.</p>
+          <div class="project-actions">
+            <a href="https://github.com/ShivankVibes" target="_blank" rel="noopener" class="btn btn-sm btn-primary" id="proj-clarcos-github">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              View on GitHub
+            </a>
+            <span class="btn btn-sm btn-secondary" style="opacity:0.5;cursor:not-allowed;" aria-label="Demo coming soon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Demo Soon
+            </span>
+          </div>
+        </div>
+      </article>
+
+
+      <!-- Morse Code Translator -->
+      <article class="project-card reveal" data-delay="80" aria-labelledby="proj-morse-title">
+        <div class="project-img-wrap">
+          <img src="images/project-morse.png" alt="Morse Code Translator — dots and dashes decoded to text" class="project-img" loading="lazy" width="600" height="375" />
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag tag-green">JavaScript</span>
+          </div>
+          <h3 id="proj-morse-title" class="project-title">Morse Code Translator</h3>
+          <p class="project-description">A real-time Morse code translator — converts text to Morse and back. Features audio playback of Morse signals, a clean minimal UI, and support for the full international Morse code table.</p>
+          <div class="project-actions">
+            <a href="#" class="btn btn-sm btn-primary" id="proj-morse-demo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Live Demo
+            </a>
+            <a href="https://github.com/ShivankVibes" target="_blank" rel="noopener" class="btn btn-sm btn-secondary" id="proj-morse-code">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              Source Code
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- ISL Hand Gesture Translator -->
+      <article class="project-card reveal" data-delay="0" aria-labelledby="proj-isl-title">
+        <div class="project-img-wrap">
+          <img src="images/project-isl.png" alt="ISL Hand Gesture Translator — real-time Indian Sign Language recognition using MediaPipe" class="project-img" loading="lazy" width="600" height="375" />
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="tag tag-green">MediaPipe</span>
+            <span class="tag tag-green">JavaScript</span>
+            <span class="tag tag-purple">AI / CV</span>
+            <span class="tag">Camera API</span>
+          </div>
+          <h3 id="proj-isl-title" class="project-title">ISL Hand Gesture Translator</h3>
+          <p class="project-description">Real-time Indian Sign Language recognition using your webcam. Detects A–Z alphabet, numbers 0–9, and common phrases like "Hello", "Thank You", "I Love You" — powered by Google MediaPipe hand landmark tracking.</p>
+          <div class="project-actions">
+            <a href="isl.html" class="btn btn-sm btn-primary" id="proj-isl-demo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Live Demo
+            </a>
+            <a href="isl_alphabet_guide.html" class="btn btn-sm btn-secondary" id="proj-isl-guide">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              A–Z Guide
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Lightning Hands -->
+      <article class="project-card reveal" data-delay="80" aria-labelledby="proj-lightning-title">
+        <div class="project-img-wrap">
+          <img src="images/project-lightning.png" alt="Lightning Hands — electric lightning bolts between tracked fingertips" class="project-img" loading="lazy" width="600" height="375" />
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="tag tag-green">JavaScript</span>
+            <span class="tag tag-purple">MediaPipe</span>
+            <span class="tag">Canvas API</span>
+            <span class="tag">WebGL</span>
+          </div>
+          <h3 id="proj-lightning-title" class="project-title">Lightning Hands ⚡</h3>
+          <p class="project-description">Hold both hands up to your camera and watch electric lightning bolts crackle between your fingertips in real-time. Built with Google MediaPipe hand tracking and canvas-based lightning bolt rendering with particle effects.</p>
+          <div class="project-actions">
+            <a href="lightning-hands.html" class="btn btn-sm btn-primary" id="proj-lightning-demo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Try It Live
+            </a>
+            <a href="https://github.com/ShivankVibes" target="_blank" rel="noopener" class="btn btn-sm btn-secondary" id="proj-lightning-code">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              Source Code
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Voice Reactive Particle Sphere -->
+      <article class="project-card reveal" data-delay="0" aria-labelledby="proj-voiceball-title">
+        <div class="project-img-wrap">
+          <img src="images/project-voiceball.png" alt="Voice Reactive Particle Sphere — 3D sphere that pulses to your microphone input" class="project-img" loading="lazy" width="600" height="375" />
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="tag tag-purple">Three.js</span>
+            <span class="tag tag-green">Web Audio API</span>
+            <span class="tag">WebGL Shaders</span>
+          </div>
+          <h3 id="proj-voiceball-title" class="project-title">Voice Reactive Sphere 🎤</h3>
+          <p class="project-description">A stunning 3D particle sphere built in Three.js that reacts to your microphone in real-time. Speak, clap, or play music — 2,500 particles pulse, compress, and glow with custom GLSL shaders driven by the Web Audio API.</p>
+          <div class="project-actions">
+            <a href="voice-ball.html" class="btn btn-sm btn-primary" id="proj-voiceball-demo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Try It Live
+            </a>
+            <a href="https://github.com/ShivankVibes" target="_blank" rel="noopener" class="btn btn-sm btn-secondary" id="proj-voiceball-code">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              Source Code
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Weather App -->
+      <article class="project-card reveal" data-delay="80" aria-labelledby="proj-weather-title">
+        <div class="project-img-wrap">
+          <img src="images/project-weather.png" alt="Weather App — real-time weather dashboard with 7-day forecast" class="project-img" loading="lazy" width="600" height="375" />
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag tag-green">JavaScript</span>
+            <span class="tag tag-purple">Weather API</span>
+          </div>
+          <h3 id="proj-weather-title" class="project-title">Weather App 🌤️</h3>
+          <p class="project-description">A real-time weather dashboard — search any city and get current conditions, temperature, humidity, wind speed, and a 7-day forecast. Clean minimal UI with animated weather icons and responsive design.</p>
+          <div class="project-actions">
+            <a href="weather-app/index.html" class="btn btn-sm btn-primary" id="proj-weather-demo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Live Demo
+            </a>
+            <a href="https://github.com/ShivankVibes" target="_blank" rel="noopener" class="btn btn-sm btn-secondary" id="proj-weather-code">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              Source Code
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- URL Shortener -->
+      <article class="project-card reveal" data-delay="0" aria-labelledby="proj-url-title">
+        <div class="project-img-wrap">
+          <img src="images/project-urlshortener.png" alt="URL Shortener — shorten long links and track click counts" class="project-img" loading="lazy" width="600" height="375" />
+        </div>
+        <div class="project-body">
+          <div class="project-tags" aria-label="Technologies used">
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag tag-green">JavaScript</span>
+            <span class="tag">localStorage</span>
+          </div>
+          <h3 id="proj-url-title" class="project-title">URL Shortener 🔗</h3>
+          <p class="project-description">A browser-based URL shortener — paste a long URL, get a short link with a custom alias, and track click counts in real-time. Stores all links in localStorage, no backend needed. Clean dark UI with a sortable links table.</p>
+          <div class="project-actions">
+            <a href="url-shortener.html" class="btn btn-sm btn-primary" id="proj-url-demo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Try It Live
+            </a>
+            <a href="https://github.com/ShivankVibes" target="_blank" rel="noopener" class="btn btn-sm btn-secondary" id="proj-url-code">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              Source Code
+            </a>
+          </div>
+        </div>
+      </article>
+
+
+    </div>
+  </div>
+</section>
+
+<div class="section-divider" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     3D PRINTING
+══════════════════════════════════════════════════════════════════════════════ -->
+<section id="printing" class="printing-section section" aria-labelledby="printing-heading">
+  <div class="container">
+
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Hardware</span>
+      <h2 id="printing-heading" class="section-title">3D Printing</h2>
+      <p class="section-subtitle">Rapid prototyping and multicolor printing with professional-grade results.</p>
+    </div>
+
+    <div class="printing-grid">
+
+      <!-- Printer Info -->
+      <div class="printing-info-card reveal-left">
+        <div class="printer-brand">
+          <span class="printer-icon" aria-hidden="true">🖨️</span>
+          <div>
+            <div class="printer-name">Bambu Lab A1</div>
+            <div class="printer-model">+ AMS Lite · Multicolor System</div>
+          </div>
+        </div>
+
+        <div class="printer-specs" role="list" aria-label="Printer specifications">
+          <div class="spec-item" role="listitem">
+            <div class="spec-label">Build Volume</div>
+            <div class="spec-value">256×256×256mm</div>
+          </div>
+          <div class="spec-item" role="listitem">
+            <div class="spec-label">Colors</div>
+            <div class="spec-value">Up to 4 colors</div>
+          </div>
+          <div class="spec-item" role="listitem">
+            <div class="spec-label">Max Speed</div>
+            <div class="spec-value">500mm/s</div>
+          </div>
+          <div class="spec-item" role="listitem">
+            <div class="spec-label">Layer Height</div>
+            <div class="spec-value">0.05–0.35mm</div>
+          </div>
+        </div>
+
+        <div class="materials-title">Supported Materials</div>
+        <div class="materials-grid" role="list" aria-label="Supported filament materials">
+          <span class="material-chip" role="listitem">🟢 PLA</span>
+          <span class="material-chip" role="listitem">🔵 PETG</span>
+          <span class="material-chip" role="listitem">⚪ PLA Matte</span>
+          <span class="material-chip" role="listitem">✨ PLA Silk</span>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div class="printing-services reveal-right">
+
+        <article class="printing-service-card">
+          <div class="ps-icon" aria-hidden="true">🔬</div>
+          <div>
+            <div class="ps-title">Prototype Printing</div>
+            <div class="ps-description">Rapid turnaround for concept validation and functional prototypes. Iterate fast.</div>
+          </div>
+        </article>
+
+        <article class="printing-service-card">
+          <div class="ps-icon" aria-hidden="true">🏫</div>
+          <div>
+            <div class="ps-title">School Projects</div>
+            <div class="ps-description">Science fair models, geography displays, and engineering assignment parts.</div>
+          </div>
+        </article>
+
+        <article class="printing-service-card">
+          <div class="ps-icon" aria-hidden="true">🔧</div>
+          <div>
+            <div class="ps-title">Replacement Parts</div>
+            <div class="ps-description">Custom-fit replacements for broken plastic parts, clips, and brackets.</div>
+          </div>
+        </article>
+
+        <article class="printing-service-card">
+          <div class="ps-icon" aria-hidden="true">🎨</div>
+          <div>
+            <div class="ps-title">Multicolor Prints</div>
+            <div class="ps-description">Vibrant multicolor models using the AMS Lite system — logos, miniatures, décor.</div>
+          </div>
+        </article>
+
+        <article class="printing-service-card">
+          <div class="ps-icon" aria-hidden="true">🪴</div>
+          <div>
+            <div class="ps-title">Décor &amp; Display</div>
+            <div class="ps-description">Planters, desk organizers, wall art, and custom decorative pieces.</div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- Printing CTA -->
+    <div class="printing-cta reveal" style="margin-top:56px;">
+      <h3>Need Something Printed?</h3>
+      <p>Send me your STL file or describe what you need — I'll get back to you with a quote and timeline.</p>
+      <a href="mailto:shivankpro23@gmail.com?subject=3D%20Print%20Request" class="btn btn-primary" id="printing-quote-cta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Request a Quote
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<div class="section-divider" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     TIMELINE
+══════════════════════════════════════════════════════════════════════════════ -->
+<section id="timeline" class="timeline-section section" aria-labelledby="timeline-heading">
+  <div class="container">
+
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Journey</span>
+      <h2 id="timeline-heading" class="section-title">My Story So Far</h2>
+      <p class="section-subtitle">Every step has been a lesson.</p>
+    </div>
+
+    <ol class="timeline" aria-label="Journey timeline">
+
+      <li class="timeline-item reveal">
+        <div class="timeline-dot" aria-hidden="true"></div>
+        <div class="timeline-date">2017 · Age 5</div>
+        <div class="timeline-card">
+          <h3 class="timeline-title">Started Coding on Scratch 🐱</h3>
+          <p class="timeline-text">At age 5, I started making games and animations on Scratch. Drag, drop, and watch things move — it was like magic. This is where the obsession started.</p>
+        </div>
+      </li>
+
+      <li class="timeline-item reveal">
+        <div class="timeline-dot" aria-hidden="true"></div>
+        <div class="timeline-date">2020 · Age 8</div>
+        <div class="timeline-card">
+          <h3 class="timeline-title">Levelled Up to Python 🐍</h3>
+          <p class="timeline-text">Moved from blocks to real code. Python was my first text-based language — automation scripts, games with Pygame, and small tools. The transition clicked immediately.</p>
+        </div>
+      </li>
+
+      <li class="timeline-item reveal">
+        <div class="timeline-dot" aria-hidden="true"></div>
+        <div class="timeline-date">2022 · Age 10</div>
+        <div class="timeline-card">
+          <h3 class="timeline-title">HTML · CSS · JavaScript 🌐</h3>
+          <p class="timeline-text">Discovered the web. Built my first real websites — learned how design and code come together. JavaScript opened up interactivity and I was hooked on front-end development.</p>
+        </div>
+      </li>
+
+      <li class="timeline-item reveal">
+        <div class="timeline-dot" aria-hidden="true"></div>
+        <div class="timeline-date">2025 · Age 13</div>
+        <div class="timeline-card">
+          <h3 class="timeline-title">Into Arduino &amp; Hardware 🤖</h3>
+          <p class="timeline-text">Entered the physical world — sensors, LEDs, circuits, and microcontrollers. Built the Electronic Tanpura. ESP32 and Raspberry Pi opened new possibilities.</p>
+        </div>
+      </li>
+
+      <li class="timeline-item reveal">
+        <div class="timeline-dot" aria-hidden="true"></div>
+        <div class="timeline-date">2026 · Age 14</div>
+        <div class="timeline-card">
+          <h3 class="timeline-title">3D Printing &amp; Products 🖨️</h3>
+          <p class="timeline-text">Got the Bambu Lab A1 + AMS Lite. Started turning digital designs into physical objects. Now shipping real client websites, multicolor prints, and sharing everything on YouTube.</p>
+        </div>
+      </li>
+
+      <li class="timeline-item reveal">
+        <div class="timeline-dot future" aria-hidden="true"></div>
+        <div class="timeline-date" style="color:var(--accent-2);">Now &amp; Beyond</div>
+        <div class="timeline-card">
+          <h3 class="timeline-title">Fluent in Most Languages 🚀</h3>
+          <p class="timeline-text">From Scratch to systems programming — the journey continues. The goal: build real products that solve real problems, ship open source tools, and never stop learning.</p>
+        </div>
+      </li>
+
+    </ol>
+  </div>
+</section>
+
+<div class="section-divider" aria-hidden="true"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     CONTACT
+══════════════════════════════════════════════════════════════════════════════ -->
+<section id="contact" class="contact-section section" aria-labelledby="contact-heading">
+  <div class="container">
+
+    <div class="section-header reveal">
+      <span class="section-eyebrow">Get in Touch</span>
+      <h2 id="contact-heading" class="section-title">Let's Work Together</h2>
+      <p class="section-subtitle">Open for websites, 3D print requests, collaborations, and general hellos.</p>
+    </div>
+
+    <!-- Contact Cards -->
+    <div class="contact-grid" role="list" aria-label="Contact links">
+
+      <!-- Email -->
+      <a href="mailto:shivankpro23@gmail.com"
+         class="contact-card reveal"
+         data-delay="0"
+         role="listitem"
+         aria-label="Send email to shivankpro23@gmail.com">
+        <div class="contact-icon blue" aria-hidden="true">✉️</div>
+        <div class="contact-label">Email</div>
+        <div class="contact-value">shivankpro23@gmail.com</div>
+      </a>
+
+      <!-- YouTube -->
+      <a href="https://youtube.com/@shivankvibes"
+         target="_blank"
+         rel="noopener"
+         class="contact-card reveal"
+         data-delay="80"
+         role="listitem"
+         aria-label="Visit Shivank Vibes on YouTube (opens in new tab)">
+        <div class="contact-icon red" aria-hidden="true">📺</div>
+        <div class="contact-label">YouTube</div>
+        <div class="contact-value">@shivankvibes</div>
+      </a>
+
+      <!-- GitHub (now active) -->
+      <a href="https://github.com/ShivankVibes"
+         target="_blank"
+         rel="noopener"
+         class="contact-card reveal"
+         data-delay="160"
+         role="listitem"
+         aria-label="Visit ShivankVibes on GitHub (opens in new tab)">
+        <div class="contact-icon gray" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </div>
+        <div class="contact-label">GitHub</div>
+        <div class="contact-value">ShivankVibes</div>
+      </a>
+
+      <!-- Discord (coming soon) -->
+      <div class="contact-card coming-soon reveal" data-delay="80" role="listitem" aria-label="Discord — coming soon">
+        <div class="contact-icon purple" aria-hidden="true">💬</div>
+        <div class="contact-label">Discord</div>
+        <div class="contact-value">Coming Soon</div>
+      </div>
+
+      <!-- Instagram (coming soon) -->
+      <div class="contact-card coming-soon reveal" data-delay="160" role="listitem" aria-label="Instagram — coming soon">
+        <div class="contact-icon purple" aria-hidden="true">📸</div>
+        <div class="contact-label">Instagram</div>
+        <div class="contact-value">Coming Soon</div>
+      </div>
+
+    </div>
+
+    <!-- CTA Card -->
+    <div class="contact-cta-card reveal" style="margin-top:32px;">
+      <h3>Ready to build something?</h3>
+      <p>Whether it's a website, a 3D print, or just a conversation about a cool idea — my inbox is open.</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+        <a href="mailto:shivankpro23@gmail.com" class="btn btn-primary" id="contact-email-cta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Send an Email
+        </a>
+        <button class="btn btn-secondary" data-copy="shivankpro23@gmail.com" id="contact-copy-btn" aria-label="Copy email address">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Email
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <p class="footer-copy">
+      &copy; 2026 <span>Shivank</span>. Designed &amp; built from scratch in Hyderabad 🇮🇳
+    </p>
+    <nav class="footer-links" aria-label="Footer links">
+      <a href="#home"    class="footer-link">Home</a>
+      <a href="#about"   class="footer-link">About</a>
+      <a href="#projects"class="footer-link">Projects</a>
+      <a href="#contact" class="footer-link">Contact</a>
+      <a href="https://youtube.com/@shivankvibes" target="_blank" rel="noopener" class="footer-link">YouTube</a>
+      <a href="https://github.com/ShivankVibes" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- ── Back to Top ──────────────────────────────────────────────────────────── -->
+<button id="back-to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     EASTER EGG — Konami Code Terminal
+══════════════════════════════════════════════════════════════════════════════ -->
+<div id="terminal-overlay" aria-hidden="true" role="dialog" aria-labelledby="terminal-title" aria-modal="true">
+  <div id="terminal-easter-egg">
+    <div class="term-header">
+      <span class="term-dot red"   aria-hidden="true"></span>
+      <span class="term-dot yellow" aria-hidden="true"></span>
+      <span class="term-dot green" aria-hidden="true"></span>
+      <span class="term-title" id="terminal-title">shivank@portfolio ~ zsh</span>
+      <button class="term-close-btn" id="terminal-close" aria-label="Close terminal">✕</button>
+    </div>
+    <div class="term-body" aria-live="polite">
+      <span class="term-line prompt typed">whoami</span>
+      <span class="term-line output">shivank — developer, maker, 3D printer</span>
+      <span class="term-line prompt">cat hello.txt</span>
+      <span class="term-line accent">Hello, World! 👋</span>
+      <span class="term-line output">You found the easter egg. Nice one.</span>
+      <span class="term-line prompt">ls projects/</span>
+      <span class="term-line purple">dvarabell/  bvk-game/  clarkos-voice-assistant/  morse-translator/  isl-translator/  lightning-hands/  voice-sphere/  weather-app/  url-shortener/</span>
+      <span class="term-line prompt">echo "Keep building."</span>
+      <span class="term-line accent">Keep building. 🚀</span>
+      <span class="term-line output">— Press Escape to close —</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Scripts ──────────────────────────────────────────────────────────────── -->
+<script src="js/particles.js" defer></script>
+<script src="js/animations.js" defer></script>
+<script src="js/app.js"        defer></script>
+
+</body>
+</html>

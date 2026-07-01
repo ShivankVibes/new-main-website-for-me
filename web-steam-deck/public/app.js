@@ -129,6 +129,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 localHelperWs = tempWs;
                 isLocalHelperConnected = true;
                 
+                // Fetch local server info to redirect phone directly to local network IP
+                fetch('http://localhost:3000/api/server-info')
+                    .then(res => res.json())
+                    .then(data => {
+                        const localUrl = data.url;
+                        mobileUrlCode.textContent = localUrl;
+                        mobileLink = localUrl;
+                        
+                        // Re-generate QR Code pointing directly to the local network IP!
+                        if (qrContainer) {
+                            const qrImg = document.createElement('img');
+                            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(localUrl)}`;
+                            qrImg.style.width = '100%';
+                            qrImg.style.height = '100%';
+                            qrContainer.innerHTML = '';
+                            qrContainer.appendChild(qrImg);
+                        }
+                    })
+                    .catch(err => console.error("Error fetching local server info:", err));
+
                 // Update badge and hide simulation
                 const connectionStatus = document.getElementById('desktop-connection-status');
                 if (connectionStatus) {
@@ -172,6 +192,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 localHelperWs = null;
                 isLocalHelperConnected = false;
                 
+                // Restore Netlify QR Code
+                const currentSession = session || Math.random().toString(36).substr(2, 8);
+                const controllerUrl = window.location.origin + window.location.pathname + '?session=' + currentSession + '&role=controller';
+                mobileLink = controllerUrl;
+                mobileUrlCode.textContent = controllerUrl;
+                if (qrContainer) {
+                    const qrImg = document.createElement('img');
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(controllerUrl)}`;
+                    qrImg.style.width = '100%';
+                    qrImg.style.height = '100%';
+                    qrContainer.innerHTML = '';
+                    qrContainer.appendChild(qrImg);
+                }
+
                 // Restore demo mode badge and remove overlay
                 const connectionStatus = document.getElementById('desktop-connection-status');
                 if (connectionStatus && isDemoMode) {
@@ -562,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     appLibrary = [
                         { name: 'Safari', path: 'Safari', icon: '🌐' },
                         { name: 'Spotify', path: 'Spotify', icon: '🎵' },
-                        { name: 'VS Code', path: 'VS Code', icon: '💻' }
+                        { name: 'VS Code', path: 'Visual Studio Code', icon: '💻' }
                     ];
                     localStorage.setItem('macDeckLibrary', JSON.stringify(appLibrary));
                 }

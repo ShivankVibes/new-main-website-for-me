@@ -111,6 +111,39 @@
 
     <!-- ==================== MOBILE CONTROLLER VIEW ==================== -->
     <div id="mobile-view" class="view-container hidden">
+        <div class="console-wrapper">
+            <!-- Left Console Handle -->
+            <div class="console-handle left-handle">
+                <div class="bumper-trigger-group">
+                    <button class="shoulder-btn key-action" data-keycode="116">L1</button>
+                </div>
+                <div class="dpad-wrapper">
+                    <div class="virtual-dpad">
+                        <button class="dpad-btn dpad-up key-action" data-keycode="126">
+                            <span class="arrow-shape"></span>
+                        </button>
+                        <button class="dpad-btn dpad-left key-action" data-keycode="123">
+                            <span class="arrow-shape"></span>
+                        </button>
+                        <div class="dpad-center"></div>
+                        <button class="dpad-btn dpad-right key-action" data-keycode="124">
+                            <span class="arrow-shape"></span>
+                        </button>
+                        <button class="dpad-btn dpad-down key-action" data-keycode="125">
+                            <span class="arrow-shape"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="joystick-wrapper">
+                    <div class="joystick-pad glass" id="landscape-left-joystick">
+                        <div class="joystick-knob"></div>
+                        <span class="joystick-label">MOUSE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Central Screen -->
+            <div class="console-screen-wrapper">
         <!-- Status Bar -->
         <header class="mobile-status-bar">
             <div class="left-section">
@@ -366,7 +399,39 @@
                 <div class="label">System</div>
             </button>
         </nav>
-    </div>
+            </div><!-- close console-screen-wrapper -->
+
+            <!-- Right Console Handle -->
+            <div class="console-handle right-handle">
+                <div class="bumper-trigger-group">
+                    <button class="shoulder-btn key-action" data-keycode="121">R1</button>
+                </div>
+                <div class="face-buttons-wrapper">
+                    <div class="face-buttons">
+                        <button class="face-btn btn-y key-action" data-keycode="48">Y
+                            <span class="action-desc">Tab</span>
+                        </button>
+                        <button class="face-btn btn-x key-action" data-keycode="49">X
+                            <span class="action-desc">Space</span>
+                        </button>
+                        <button class="face-btn btn-b key-action" data-keycode="53">B
+                            <span class="action-desc">Esc</span>
+                        </button>
+                        <button class="face-btn btn-a key-action" data-keycode="36">A
+                            <span class="action-desc">Enter</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="joystick-wrapper">
+                    <div class="joystick-pad glass" id="landscape-right-joystick">
+                        <div class="joystick-knob"></div>
+                        <span class="joystick-label">SCROLL</span>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- close console-wrapper -->
+    </div><!-- close mobile-view -->
 
     <!-- ==================== MANAGE LIBRARY MODAL ==================== -->
     <div id="library-modal" class="modal-overlay hidden">

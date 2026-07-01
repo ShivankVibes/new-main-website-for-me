@@ -654,10 +654,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // ------------------------------------------------------------------
         // Gamepad Joystick math & input loop
         // ------------------------------------------------------------------
+        // Tab gamepad joysticks
         initJoystick('controller-left-joystick', (x, y) => {
-            // Left Joystick: relative mouse movement
             if (x !== 0 || y !== 0) {
-                // Apply exponential curve to joystick speed
                 const speedMult = 14;
                 sendWS({
                     type: 'mouse_move',
@@ -668,7 +667,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         initJoystick('controller-right-joystick', (x, y) => {
-            // Right Joystick: vertical/horizontal scroll
+            if (x !== 0 || y !== 0) {
+                const scrollMult = -6;
+                sendWS({
+                    type: 'mouse_scroll',
+                    dx: Math.round(x * scrollMult),
+                    dy: Math.round(y * scrollMult)
+                });
+            }
+        });
+
+        // Landscape side-handle joysticks
+        initJoystick('landscape-left-joystick', (x, y) => {
+            if (x !== 0 || y !== 0) {
+                const speedMult = 14;
+                sendWS({
+                    type: 'mouse_move',
+                    dx: Math.round(x * speedMult),
+                    dy: Math.round(y * speedMult)
+                });
+            }
+        });
+
+        initJoystick('landscape-right-joystick', (x, y) => {
             if (x !== 0 || y !== 0) {
                 const scrollMult = -6;
                 sendWS({
@@ -681,6 +702,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function initJoystick(elementId, moveCallback) {
             const pad = document.getElementById(elementId);
+            if (!pad) return; // guard check
             const knob = pad.querySelector('.joystick-knob');
             const maxRadius = 30; // joystick travel distance constraint
             let padCenter = { x: 0, y: 0 };

@@ -1346,14 +1346,171 @@ h1, h2, h3, .brand {
     color: var(--text-muted);
 }
 
-/* Media Queries */
+/* Media Queries & Console Overlays */
+
+/* ==========================================================================
+   LANDSCAPE CONSOLE OVERLAY FRAME
+   ========================================================================== */
+
+.console-wrapper {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: var(--bg-darker);
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 192, 240, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(255, 92, 0, 0.05) 0%, transparent 40%),
+        linear-gradient(45deg, #11151d 25%, transparent 25%),
+        linear-gradient(-45deg, #11151d 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #11151d 75%),
+        linear-gradient(-45deg, transparent 75%, #11151d 75%);
+    background-size: 100% 100%, 100% 100%, 8px 8px, 8px 8px, 8px 8px, 8px 8px;
+}
+
+.console-handle {
+    width: 130px;
+    height: 100%;
+    background: linear-gradient(180deg, #1e2530 0%, #12161f 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    padding: 20px 0;
+    box-shadow: inset 0 1px 3px rgba(255,255,255,0.05), 0 0 15px rgba(0,0,0,0.5);
+    z-index: 10;
+    position: relative;
+}
+
+.left-handle {
+    border-right: 1px solid rgba(255,255,255,0.05);
+    border-radius: 0 16px 16px 0;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+}
+.left-handle::after {
+    content: '';
+    position: absolute;
+    top: 10%; right: 0; bottom: 10%; width: 2px;
+    background: linear-gradient(to bottom, transparent, var(--accent-orange), transparent);
+    box-shadow: 0 0 8px var(--accent-orange-glow);
+}
+
+.right-handle {
+    border-left: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px 0 0 16px;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+}
+.right-handle::after {
+    content: '';
+    position: absolute;
+    top: 10%; left: 0; bottom: 10%; width: 2px;
+    background: linear-gradient(to bottom, transparent, var(--accent-orange), transparent);
+    box-shadow: 0 0 8px var(--accent-orange-glow);
+}
+
+.console-screen-wrapper {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 4px solid #1c2330;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.dpad-wrapper, .face-buttons-wrapper {
+    margin: 10px 0;
+}
+
+.joystick-container, .joystick-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.joystick-pad {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: #0d1117;
+    border: 2px solid rgba(255,255,255,0.03);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 15px var(--accent-blue-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.joystick-pad::after {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-blue);
+    opacity: 0.5;
+    pointer-events: none;
+    box-shadow: 0 0 10px var(--accent-blue-glow);
+}
+
+.bumper-trigger-group {
+    width: 100%;
+    padding: 0 10px;
+}
+.bumper-trigger-group button {
+    width: 100%;
+    background: linear-gradient(180deg, #374151, #1f2937);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255,255,255,0.05);
+    font-weight: 800;
+    font-size: 0.75rem;
+    padding: 8px 0;
+    border-radius: 6px;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 3px 5px rgba(0,0,0,0.3);
+}
+.bumper-trigger-group button:active {
+    background: var(--accent-blue);
+    color: white;
+    box-shadow: 0 0 10px var(--accent-blue-glow);
+}
+
+/* Landscape View specific adaptations */
+@media (min-aspect-ratio: 1.25) {
+    /* Hide the Gamepad tab icon on landscape since controllers are physically on the sides! */
+    .mobile-nav-bar button[data-target="panel-controller"] {
+        display: none !important;
+    }
+}
+
+/* Portrait View specific overrides (Standard phone layout) */
+@media (max-aspect-ratio: 1.25) {
+    .console-handle {
+        display: none !important;
+    }
+    .console-screen-wrapper {
+        border: none;
+        border-radius: 0;
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+    }
+    .console-wrapper {
+        background-image: none;
+        background-color: var(--bg-darker);
+    }
+}
+
+/* Desktop layout constraint fallback */
 @media (min-width: 768px) {
-    /* Limit mobile view width on large screens if forced */
     #mobile-view {
-        max-width: 480px;
+        max-width: 740px; /* widen to account for controller handles in preview */
         margin: 0 auto;
-        border-left: 1px solid rgba(255,255,255,0.05);
-        border-right: 1px solid rgba(255,255,255,0.05);
-        box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        border: 2px solid rgba(255,255,255,0.08);
+        border-radius: 20px;
+        box-shadow: 0 0 60px rgba(0,0,0,0.9);
+    }
+    .console-screen-wrapper {
+        border-radius: 0;
     }
 }

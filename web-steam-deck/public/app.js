@@ -473,29 +473,52 @@ document.addEventListener('DOMContentLoaded', () => {
         let appLibrary = [];
         
         function fetchLibrary() {
-            fetch('/api/library')
-                .then(res => res.json())
-                .then(data => {
-                    appLibrary = data;
-                    renderLibrary();
-                })
-                .catch(err => console.error("Error fetching library:", err));
+            if (isDemoMode) {
+                // In demo mode, load from localStorage
+                appLibrary = JSON.parse(localStorage.getItem('macDeckLibrary') || '[]');
+                if (appLibrary.length === 0) {
+                    // Default mockup configuration
+                    appLibrary = [
+                        { name: 'Safari', path: 'Safari', icon: '🌐' },
+                        { name: 'Spotify', path: 'Spotify', icon: '🎵' },
+                        { name: 'VS Code', path: 'VS Code', icon: '💻' }
+                    ];
+                    localStorage.setItem('macDeckLibrary', JSON.stringify(appLibrary));
+                }
+                renderLibrary();
+            } else {
+                // In local mode, fetch from host server API
+                fetch('/api/library')
+                    .then(res => res.json())
+                    .then(data => {
+                        appLibrary = data;
+                        renderLibrary();
+                    })
+                    .catch(err => console.error("Error fetching library:", err));
+            }
         }
 
         function saveLibrary() {
-            fetch('/api/library', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(appLibrary)
-            })
-            .then(res => res.json())
-            .then(data => {
-                appLibrary = data.library;
+            if (isDemoMode) {
+                // In demo mode, save to localStorage
+                localStorage.setItem('macDeckLibrary', JSON.stringify(appLibrary));
                 renderLibrary();
-            })
-            .catch(err => console.error("Error saving library:", err));
+            } else {
+                // In local mode, save to host server API
+                fetch('/api/library', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(appLibrary)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    appLibrary = data.library;
+                    renderLibrary();
+                })
+                .catch(err => console.error("Error saving library:", err));
+            }
         }
 
         // Establish socket connection
@@ -654,6 +677,15 @@ document.addEventListener('DOMContentLoaded', () => {
         updateClock();
 
         function pollHostStats() {
+            if (isDemoMode) {
+                // Dummy values for demo mode
+                statusActiveApp.textContent = "Safari";
+                statusCpu.textContent = `${Math.floor(Math.random() * 15) + 5}%`;
+                statusBattery.textContent = "🔋 95%";
+                updateAccessibilityUI(true);
+                return;
+            }
+
             fetch('/api/system-stats')
                 .then(res => res.json())
                 .then(data => {

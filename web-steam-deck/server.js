@@ -4,8 +4,11 @@ const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
 const { exec, spawn } = require('child_process');
+const os = require('os');
 const QRCode = require('qrcode');
 const https = require('https');
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
 
 const app = express();
 const server = http.createServer(app);

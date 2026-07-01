@@ -576,6 +576,36 @@ document.addEventListener('DOMContentLoaded', () => {
         let reconnectInterval = 1000;
         let isConnected = false;
 
+        // Custom Cloud Mac ID setup handler
+        const cloudMacIdInput = document.getElementById('cloud-mac-id-input');
+        const saveCloudMacIdBtn = document.getElementById('save-cloud-mac-id-btn');
+        const cloudMacIdStatus = document.getElementById('cloud-mac-id-status');
+
+        let savedCloudMacId = localStorage.getItem('cloudMacId');
+        if (savedCloudMacId) {
+            if (cloudMacIdInput) cloudMacIdInput.value = savedCloudMacId;
+            session = savedCloudMacId; // override session
+        }
+
+        if (saveCloudMacIdBtn && cloudMacIdInput) {
+            saveCloudMacIdBtn.addEventListener('click', () => {
+                const newId = cloudMacIdInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+                if (newId) {
+                    localStorage.setItem('cloudMacId', newId);
+                    if (cloudMacIdStatus) {
+                        cloudMacIdStatus.style.display = 'block';
+                        setTimeout(() => { cloudMacIdStatus.style.display = 'none'; }, 3000);
+                    }
+                    setTimeout(() => {
+                        window.location.href = window.location.origin + window.location.pathname + '?session=' + newId + '&role=controller';
+                    }, 800);
+                } else {
+                    localStorage.removeItem('cloudMacId');
+                    window.location.href = window.location.origin + window.location.pathname + '?role=controller';
+                }
+            });
+        }
+
         // UI states
         const statusActiveApp = document.getElementById('mobile-active-app');
         const statusCpu = document.getElementById('mobile-stat-cpu');
@@ -791,13 +821,33 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(updateClock, 1000);
         updateClock();
 
+        let statsSse = null;
         function pollHostStats() {
             if (isDemoMode) {
-                // Dummy values for demo mode
-                statusActiveApp.textContent = "Safari";
-                statusCpu.textContent = `${Math.floor(Math.random() * 15) + 5}%`;
-                statusBattery.textContent = "🔋 95%";
-                updateAccessibilityUI(true);
+                // Connect to cloud stats SSE relayer to get actual Mac metrics
+                if (!statsSse) {
+                    const currentSession = session || 'demo';
+                    statsSse = new EventSource(`https://ntfy.sh/macdeck-${currentSession}-stats/sse`);
+                    statsSse.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            if (data.event === 'message') {
+                                const payload = JSON.parse(data.message);
+                                if (payload.type === 'stats_update' && payload.stats) {
+                                    const stats = payload.stats;
+                                    statusActiveApp.textContent = stats.activeApp || "Finder";
+                                    statusCpu.textContent = `${stats.cpu}%`;
+                                    
+                                    let batStr = `${stats.battery.percent}%`;
+                                    if (stats.battery.isCharging) batStr = `⚡ ${batStr}`;
+                                    statusBattery.textContent = batStr;
+                                    
+                                    updateAccessibilityUI(stats.accessibilityTrusted);
+                                }
+                            }
+                        } catch (e) {}
+                    };
+                }
                 return;
             }
 

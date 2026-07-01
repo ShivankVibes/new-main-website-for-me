@@ -4,8 +4,8 @@ const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
 const { exec, spawn } = require('child_process');
-const os = require('os');
 const QRCode = require('qrcode');
+const https = require('https');
 
 const app = express();
 const server = http.createServer(app);
@@ -322,77 +322,7 @@ wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
-            
-            switch (data.type) {
-                case 'mouse_move':
-                    // mouse_move -> dx, dy
-                    sendToSwift(`move ${data.dx} ${data.dy}`);
-                    break;
-                    
-                case 'mouse_to':
-                    // mouse_to -> x, y
-                    sendToSwift(`move_to ${data.x} ${data.y}`);
-                    break;
-                    
-                case 'mouse_click':
-                    // mouse_click -> button, action
-                    sendToSwift(`click ${data.button} ${data.action || 'press'}`);
-                    break;
-                    
-                case 'mouse_scroll':
-                    // mouse_scroll -> dx, dy
-                    sendToSwift(`scroll ${data.dx} ${data.dy}`);
-                    break;
-                    
-                case 'key_press':
-                    // key_press -> keycode, action, modifiers
-                    sendToSwift(`key ${data.keycode} ${data.action} ${data.modifiers || ''}`);
-                    break;
-                    
-                case 'type_text':
-                    // type_text -> text
-                    sendToSwift(`type ${data.text}`);
-                    break;
-                    
-                case 'media_key':
-                    // media_key -> key, action
-                    sendToSwift(`media_key ${data.key} ${data.action || 'press'}`);
-                    break;
-                    
-                case 'set_volume':
-                    // set_volume -> value (0 - 100)
-                    exec(`osascript -e "set volume output volume ${data.value}"`);
-                    break;
-                    
-                case 'open_app':
-                    // open_app -> name
-                    console.log(`Opening app: ${data.name}`);
-                    exec(`open -a "${data.name}"`, (err) => {
-                        if (err) {
-                            // If direct path launch fails, try basic open by bundle name
-                            exec(`open -a "${path.basename(data.name, '.app')}"`);
-                        }
-                    });
-                    break;
-                    
-                case 'system_action':
-                    // system_action -> action
-                    if (data.action === 'sleep') {
-                        exec("osascript -e 'tell application \"System Events\" to sleep'");
-                    } else if (data.action === 'lock') {
-                        exec("osascript -e 'tell application \"System Events\" to keystroke \"q\" using {control down, command down}'");
-                    } else if (data.action === 'desktop') {
-                        // Toggle visible to show desktop (clever applescript trick)
-                        exec(`osascript -e '
-                            tell application "System Events"
-                                set visible of every process whose visible is true and name is not "Finder" to false
-                            end tell
-                        '`);
-                    } else if (data.action === 'mission_control') {
-                        exec("open -a 'Mission Control'");
-                    }
-                    break;
-            }
+            handleIncomingPayload(data);
         } catch (e) {
             console.error("Error parsing WebSocket message: ", e);
         }
@@ -428,4 +358,152 @@ server.listen(PORT, '0.0.0.0', () => {
     
     // Fire up the Swift background process
     startSwiftDaemon();
+
+    // Subscribe to cloud relay channel
+    const topicName = 'macdeck-' + os.hostname().toLowerCase().split('.')[0].replace(/[^a-z0-9-]/g, '');
+    console.log(`☁️ Cloud Relay: Listening to https://ntfy.sh/${topicName}`);
+    subscribeToNtfy(topicName);
+
+    // Periodically publish system stats to the cloud relay for the phone controller HUD
+    setInterval(() => publishStatsToCloud(topicName), 5000);
+    // Initial stats publish
+    setTimeout(() => publishStatsToCloud(topicName), 1000);
 });
+
+// Centralized Payload Handler (WebSocket + Cloud Relay)
+function handleIncomingPayload(data) {
+    try {
+        switch (data.type) {
+            case 'mouse_move':
+                sendToSwift(`move ${data.dx} ${data.dy}`);
+                break;
+            case 'mouse_to':
+                sendToSwift(`move_to ${data.x} ${data.y}`);
+                break;
+            case 'mouse_click':
+                sendToSwift(`click ${data.button} ${data.action || 'press'}`);
+                break;
+            case 'mouse_scroll':
+                sendToSwift(`scroll ${data.dx} ${data.dy}`);
+                break;
+            case 'key_press':
+                sendToSwift(`key ${data.keycode} ${data.action} ${data.modifiers || ''}`);
+                break;
+            case 'type_text':
+                sendToSwift(`type ${data.text}`);
+                break;
+            case 'media_key':
+                sendToSwift(`media_key ${data.key} ${data.action || 'press'}`);
+                break;
+            case 'set_volume':
+                exec(`osascript -e "set volume output volume ${data.value}"`);
+                break;
+            case 'open_app':
+                console.log(`Opening app: ${data.name}`);
+                exec(`open -a "${data.name}"`, (err) => {
+                    if (err) {
+                        exec(`open -a "${path.basename(data.name, '.app')}"`);
+                    }
+                });
+                break;
+            case 'system_action':
+                if (data.action === 'sleep') {
+                    exec("osascript -e 'tell application \"System Events\" to sleep'");
+                } else if (data.action === 'lock') {
+                    exec("osascript -e 'tell application \"System Events\" to keystroke \"q\" using {control down, command down}'");
+                } else if (data.action === 'desktop') {
+                    exec(`osascript -e '
+                        tell application "System Events"
+                            set visible of every process whose visible is true and name is not "Finder" to false
+                        end tell
+                    '`);
+                } else if (data.action === 'mission_control') {
+                    exec("open -a 'Mission Control'");
+                }
+                break;
+        }
+    } catch (e) {
+        console.error("Error executing action: ", e);
+    }
+}
+
+// SSE Subscriber to ntfy.sh (No browser required)
+function subscribeToNtfy(topic) {
+    const url = `https://ntfy.sh/${topic}/sse`;
+    https.get(url, (res) => {
+        let buffer = '';
+        res.on('data', (chunk) => {
+            buffer += chunk.toString();
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+            
+            for (const line of lines) {
+                if (line.startsWith('data:')) {
+                    try {
+                        const eventData = JSON.parse(line.slice(5).trim());
+                        if (eventData.event === 'message') {
+                            const payload = JSON.parse(eventData.message);
+                            handleIncomingPayload(payload);
+                        }
+                    } catch (e) {}
+                }
+            }
+        });
+        
+        res.on('end', () => {
+            console.log("Cloud relay disconnected, reconnecting in 2s...");
+            setTimeout(() => subscribeToNtfy(topic), 2000);
+        });
+    }).on('error', (err) => {
+        console.error("Cloud relay connection error:", err);
+        setTimeout(() => subscribeToNtfy(topic), 5000);
+    });
+}
+
+// Publish real-time stats to cloud channel for phone HUD updates
+function publishStatsToCloud(topic) {
+    cachedStats.cpu = currentCpuUsage;
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    cachedStats.memory = Math.round(((totalMem - freeMem) / totalMem) * 100);
+    cachedStats.accessibilityTrusted = accessibilityTrusted;
+
+    exec("osascript -e 'tell application \"System Events\" to get name of first process whose frontmost is true'", (err, activeAppOut) => {
+        if (!err && activeAppOut) {
+            cachedStats.activeApp = activeAppOut.trim();
+        }
+        
+        exec("pmset -g batt", (err, battOut) => {
+            if (!err && battOut) {
+                const matches = battOut.match(/(\d+)%;\s*([^;]+);/);
+                if (matches) {
+                    cachedStats.battery = {
+                        percent: parseInt(matches[1]),
+                        isCharging: matches[2].toLowerCase().includes('charging') || matches[2].toLowerCase().includes('ac')
+                    };
+                }
+            }
+            
+            const payload = {
+                type: 'stats_update',
+                stats: cachedStats
+            };
+            
+            const postData = JSON.stringify(payload);
+            const req = https.request({
+                hostname: 'ntfy.sh',
+                port: 443,
+                path: `/${topic}-stats`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                }
+            }, (res) => {});
+            
+            req.on('error', () => {});
+            req.write(postData);
+            req.end();
+        });
+    });
+}

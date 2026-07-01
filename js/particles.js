@@ -7,10 +7,12 @@
   'use strict';
 
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
+  const isTouchDevice = window.matchMedia('(hover: none)').matches;
 
   // ── Mouse Spotlight ──────────────────────────────────────────────────────────
   const spotlight = document.getElementById('mouse-spotlight');
-  if (spotlight) {
+  if (spotlight && !isTouchDevice) {
     document.addEventListener('mousemove', (e) => {
       spotlight.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(59,130,246,0.06), transparent 70%)`;
     });
@@ -25,8 +27,8 @@
 
   const ctx = canvas.getContext('2d');
   let W, H, particles = [], mouse = { x: -9999, y: -9999 };
-  const PARTICLE_COUNT = prefersReduced ? 0 : 90;
-  const LINE_THRESHOLD = 130;
+  const PARTICLE_COUNT = prefersReduced ? 0 : (isSmallScreen || isTouchDevice ? 32 : 90);
+  const LINE_THRESHOLD = isSmallScreen ? 95 : 130;
   const MOUSE_THRESHOLD = 150;
 
   function resize() {

@@ -52,30 +52,53 @@
 /* ── Mobile (≤ 768px) ────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   :root {
-    --fs-hero-name:  clamp(2.4rem, 12vw, 4rem);
-    --fs-hero-sub:   clamp(1.1rem, 4vw, 1.5rem);
-    --fs-section-title: clamp(1.6rem, 6vw, 2.2rem);
-    --section-padding: 64px 16px;
+    --fs-hero-name:  clamp(2.75rem, 16vw, 4.4rem);
+    --fs-hero-sub:   clamp(1rem, 4vw, 1.3rem);
+    --fs-section-title: clamp(1.75rem, 8vw, 2.2rem);
+    --section-padding: 68px 0;
   }
 
   /* Navbar */
+  .navbar {
+    padding: 14px 16px;
+  }
+
+  .navbar.scrolled {
+    padding: 10px 16px;
+  }
+
+  .nav-inner {
+    gap: 14px;
+  }
+
+  .nav-logo {
+    font-size: 1rem;
+  }
+
+  .nav-logo-mark {
+    width: 30px;
+    height: 30px;
+  }
+
   .nav-links-wrap {
     position: fixed;
     top: 0;
     right: -100%;
-    width: min(280px, 80vw);
-    height: 100vh;
+    width: min(320px, 86vw);
+    height: 100dvh;
     background: rgba(9,9,11,0.97);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;
-    padding: 80px 32px 32px;
+    justify-content: flex-start;
+    padding: 82px 24px 28px;
     gap: 8px;
     transition: right 0.35s cubic-bezier(0.16,1,0.3,1);
     border-left: 1px solid rgba(255,255,255,0.08);
     z-index: 998;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .nav-links-wrap.open {
@@ -89,8 +112,7 @@
   }
 
   .nav-link::after {
-    bottom: 0;
-    height: 1px;
+    display: none;
   }
 
   #hamburger {
@@ -98,48 +120,140 @@
   }
 
   .nav-theme-btn {
-    margin-top: 24px;
-    width: 100%;
-    justify-content: flex-start;
+    margin-top: 0;
+    width: 36px;
+    height: 36px;
+    justify-content: center;
   }
 
   /* Hero */
   .hero-section {
-    min-height: 100svh;
-    padding: 100px 20px 60px;
+    min-height: auto;
+    padding: 92px 16px 56px;
     text-align: center;
+    align-items: flex-start;
+  }
+
+  .hero-grid-bg {
+    background-size: 44px 44px;
+    opacity: 0.7;
+  }
+
+  .hero-blob {
+    filter: blur(70px);
+  }
+
+  .hero-blob-1 {
+    width: 320px;
+    height: 320px;
+    top: -120px;
+    left: -140px;
+  }
+
+  .hero-blob-2 {
+    width: 280px;
+    height: 280px;
+    right: -120px;
+    bottom: 20px;
+  }
+
+  .hero-blob-3 {
+    display: none;
+  }
+
+  .hero-content {
+    width: 100%;
+    padding: 0;
   }
 
   .hero-badge {
     margin: 0 auto 24px;
+    max-width: 100%;
+    padding: 6px 12px 6px 8px;
+    font-size: 0.76rem;
+    line-height: 1.25;
+  }
+
+  .hero-title {
+    letter-spacing: 0;
+    margin-bottom: 14px;
+  }
+
+  .hero-subtitle {
+    min-height: 1.7em;
+    margin-bottom: 16px;
+  }
+
+  .hero-description {
+    font-size: 0.96rem;
+    line-height: 1.65;
+    margin-bottom: 28px;
   }
 
   .hero-actions {
     flex-direction: column;
     align-items: center;
     gap: 14px;
+    margin-bottom: 36px;
   }
 
   .hero-actions .btn {
     width: 100%;
-    max-width: 280px;
+    max-width: 320px;
     justify-content: center;
   }
 
   .stats-row {
-    flex-wrap: wrap;
-    gap: 24px;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    width: 100%;
+    padding-top: 24px;
   }
 
   .stat-item {
-    min-width: 120px;
+    min-width: 0;
+  }
+
+  .stat-number {
+    font-size: 1.6rem;
+  }
+
+  .stat-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+  }
+
+  .scroll-indicator {
+    display: none;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .section-header {
+    margin-bottom: 36px;
+  }
+
+  .section-eyebrow {
+    letter-spacing: 0.08em;
+  }
+
+  .section-title {
+    font-size: var(--fs-section-title);
+    letter-spacing: 0;
+  }
+
+  .section-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.6;
   }
 
   /* About */
   .about-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 32px;
   }
 
   .about-text p {
@@ -151,10 +265,33 @@
     height: 180px;
   }
 
+  .about-avatar-frame {
+    width: 180px;
+    height: 180px;
+  }
+
+  .avatar-emoji {
+    font-size: 5.2rem;
+  }
+
+  .avatar-badge {
+    right: 50%;
+    bottom: -16px;
+    transform: translateX(50%);
+  }
+
+  .about-chips {
+    justify-content: center;
+  }
+
   /* Skills */
-  .skills-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  .skills-categories {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .skill-category {
+    padding: 22px;
   }
 
   .skill-category-title {
@@ -166,21 +303,84 @@
     grid-template-columns: 1fr;
   }
 
+  .service-card {
+    padding: 24px 20px;
+  }
+
   /* Projects */
   .projects-grid {
     grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .project-body {
+    padding: 20px;
+  }
+
+  .project-description {
+    line-height: 1.6;
+  }
+
+  .project-actions {
+    flex-direction: column;
+  }
+
+  .project-actions .btn {
+    width: 100%;
+    justify-content: center;
   }
 
   /* Printing */
   .materials-grid {
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
   }
 
   .printer-specs {
     grid-template-columns: 1fr;
   }
 
+  .printing-info-card,
+  .printing-cta {
+    padding: 24px 20px;
+  }
+
+  .printing-service-card {
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .ps-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 1.45rem;
+  }
+
+  .printing-cta {
+    border-radius: var(--radius-lg);
+  }
+
+  .printing-cta h3,
+  .contact-cta-card h3 {
+    font-size: 1.35rem;
+    letter-spacing: 0;
+  }
+
   /* YouTube */
+  .yt-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .yt-info-card {
+    padding: 24px 20px;
+  }
+
+  .yt-stats {
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+
   .yt-embed-wrap {
     aspect-ratio: 16/9;
   }
@@ -205,6 +405,16 @@
   /* Contact */
   .contact-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .contact-card {
+    padding: 20px;
+  }
+
+  .contact-cta-card {
+    padding: 32px 20px;
+    border-radius: var(--radius-lg);
   }
 
   /* Footer */
@@ -214,34 +424,127 @@
     text-align: center;
   }
 
-  /* Section title */
-  .section-title {
-    font-size: var(--fs-section-title);
-  }
-
   /* Scroll progress */
   #scroll-progress {
     height: 2px;
+  }
+
+  #back-to-top {
+    right: 16px;
+    bottom: 16px;
+    width: 40px;
+    height: 40px;
+  }
+
+  #terminal-easter-egg {
+    width: 100%;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+  }
+
+  .reveal-left,
+  .reveal-right {
+    transform: translateY(24px);
   }
 }
 
 /* ── Small Mobile (≤ 480px) ──────────────────────────────────────────────── */
 @media (max-width: 480px) {
   :root {
-    --fs-hero-name: 2.2rem;
+    --fs-hero-name: clamp(2.45rem, 17vw, 3.4rem);
+    --section-padding: 56px 0;
   }
 
-  .skills-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .navbar {
+    padding-inline: 12px;
+  }
+
+  .container {
+    padding: 0 14px;
+  }
+
+  .hero-section {
+    padding: 84px 14px 48px;
+  }
+
+  .hero-badge {
+    border-radius: var(--radius-md);
+  }
+
+  .btn {
+    padding: 12px 18px;
+  }
+
+  .stats-row {
+    gap: 14px 10px;
+  }
+
+  .section-header {
+    margin-bottom: 30px;
+  }
+
+  .about-title {
+    font-size: 1.65rem;
+    letter-spacing: 0;
+  }
+
+  .about-chip {
+    font-size: 0.78rem;
+    padding: 6px 10px;
+  }
+
+  .skill-category,
+  .service-card,
+  .project-body,
+  .printing-info-card,
+  .yt-info-card,
+  .timeline-card {
+    padding: 18px;
+  }
+
+  .project-img-wrap {
+    aspect-ratio: 4/3;
+  }
+
+  .project-title,
+  .service-title,
+  .printer-name {
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+
+  .printer-brand {
+    align-items: flex-start;
+  }
+
+  .material-chip,
+  .tag {
+    white-space: normal;
+  }
+
+  .printing-service-card {
+    gap: 12px;
   }
 
   .contact-card {
-    padding: 20px;
+    align-items: flex-start;
+    text-align: left;
+    gap: 10px;
   }
 
   .project-card .btn {
     font-size: 0.8rem;
-    padding: 8px 14px;
+    padding: 10px 14px;
+  }
+
+  .footer {
+    padding: 28px 16px;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 18px;
   }
 }
 
@@ -256,6 +559,18 @@
   }
 
   .card-hover:hover {
+    transform: none;
+  }
+
+  .service-card:hover,
+  .project-card:hover,
+  .printing-service-card:hover,
+  .contact-card:hover {
+    transform: none;
+    box-shadow: var(--shadow-card);
+  }
+
+  .project-card:hover .project-img {
     transform: none;
   }
 

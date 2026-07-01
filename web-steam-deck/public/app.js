@@ -1115,8 +1115,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Fetch installed applications from host
         let scannedApps = [];
+
+        // Comprehensive fallback list for cloud/Netlify mode
+        // (since /api/apps is only available when server.js is running locally)
+        const COMMON_MAC_APPS = [
+            "1Password", "AirDrop", "App Store", "Apple Configurator", "Arc",
+            "Automator", "Brave Browser", "Calculator", "Calendar", "Chess",
+            "Contacts", "Cursor", "Discord", "DiskDiag", "Docker",
+            "FaceTime", "Final Cut Pro", "Finder", "Firefox", "Figma",
+            "Font Book", "Framer", "GarageBand", "Google Chrome", "IINA",
+            "Image Capture", "iMessage", "iMovie", "iPhone Mirroring", "iTerm",
+            "iTunes", "Keynote", "Linear", "Logic Pro", "Loom",
+            "Mail", "Maps", "Messages", "Microsoft Excel", "Microsoft OneNote",
+            "Microsoft Outlook", "Microsoft PowerPoint", "Microsoft Teams",
+            "Microsoft Word", "Music", "News", "Notes", "Notion",
+            "Numbers", "Obsidian", "Pages", "Photos", "Photoshop",
+            "Podcasts", "Raycast", "Reminders", "Safari", "Shortcuts",
+            "Sketch", "Slack", "Spotify", "Steam", "System Preferences",
+            "System Settings", "Terminal", "TextEdit", "Tot", "Transmit",
+            "Tuple", "Twitch", "VLC", "VS Code", "WhatsApp",
+            "Xcode", "Zoom"
+        ].map(name => ({ name, path: name }));
+
         function loadSystemApplications() {
             systemAppsList.innerHTML = '<div class="loading-spinner">Scanning applications...</div>';
+
+            if (!isLocalServer) {
+                // Cloud mode: use built-in common Mac apps list instantly
+                scannedApps = COMMON_MAC_APPS;
+                renderScannedAppsList(COMMON_MAC_APPS);
+                return;
+            }
+
+            // Local mode: fetch actual installed apps from server
             fetch('/api/apps')
                 .then(res => res.json())
                 .then(apps => {
@@ -1124,7 +1155,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderScannedAppsList(apps);
                 })
                 .catch(() => {
-                    systemAppsList.innerHTML = '<div class="loading-spinner">Failed to load system apps.</div>';
+                    // Fallback to built-in list if local fetch fails
+                    scannedApps = COMMON_MAC_APPS;
+                    renderScannedAppsList(COMMON_MAC_APPS);
                 });
         }
 

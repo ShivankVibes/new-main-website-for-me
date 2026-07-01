@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Mac Deck - Web Steam Deck</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ==================== DESKTOP LANDING VIEW ==================== -->
+    <div id="desktop-view" class="view-container">
+        <div class="glow-bg"></div>
+        <main class="desktop-card glass">
+            <header class="desktop-header">
+                <div class="logo">
+                    <span class="logo-accent">MAC</span> DECK
+                </div>
+                <div class="badge status-connected" id="desktop-connection-status">
+                    <span class="dot pulse-green"></span> Server Active
+                </div>
+            </header>
+
+            <div class="desktop-grid">
+                <!-- Left: QR Code & IP -->
+                <section class="qr-section">
+                    <h2>Connect Your Mobile Device</h2>
+                    <p class="subtitle">Scan this QR code with your iPhone or Android phone camera (must be on the same Wi-Fi network).</p>
+                    
+                    <div class="qr-wrapper glass" id="qr-container" style="padding: 10px; background: #fff; width: 220px; height: 220px; display: flex; align-items: center; justify-content: center;">
+                        <div id="qr-fallback" class="hidden">Could not load QR code. Connect manually.</div>
+                    </div>
+                    
+                    <div class="ip-address-box">
+                        <span class="label">Or type this URL in your phone's browser:</span>
+                        <div class="url-input-group">
+                            <code id="mobile-url">http://192.168.1.100:3000</code>
+                            <button id="copy-url-btn" class="btn btn-secondary btn-sm">Copy</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right: Instructions & Permissions -->
+                <section class="info-section">
+                    <div class="card-panel glass">
+                        <h3>📋 Setup Instructions</h3>
+                        <ol class="setup-steps">
+                            <li>Connect your Mac and phone to the <strong>same Wi-Fi network</strong>.</li>
+                            <li>Scan the QR code to open the controller on your phone.</li>
+                            <li>Ensure Accessibility Permissions are granted below.</li>
+                        </ol>
+                    </div>
+
+                    <div class="card-panel glass security-panel">
+                        <h3>🔒 macOS Accessibility Access</h3>
+                        <p class="desc">To control the mouse cursor and simulate keyboard entries, macOS requires accessibility authorization for your terminal or editor.</p>
+                        
+                        <div class="permission-status" id="perm-status-box">
+                            <div class="status-indicator">
+                                <span class="status-dot" id="perm-dot"></span>
+                                <span id="perm-text">Checking permissions...</span>
+                            </div>
+                            <button id="request-perm-btn" class="btn btn-primary">Check Again</button>
+                        </div>
+                        
+                        <div class="permission-instructions warning hidden" id="perm-inst">
+                            <strong>How to enable:</strong>
+                            <ol>
+                               <li>Open <strong>System Settings</strong>.</li>
+                               <li>Go to <strong>Privacy & Security</strong> &gt; <strong>Accessibility</strong>.</li>
+                               <li>Enable the switch for your terminal application (e.g. <em>Terminal, iTerm, or VS Code</em>).</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="card-panel glass stats-panel">
+                        <h3>🖥️ Host System Details</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Active Application</span>
+                                <span class="stat-val" id="host-active-app">None</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">CPU Load</span>
+                                <span class="stat-val" id="host-cpu">0%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Memory Usage</span>
+                                <span class="stat-val" id="host-mem">0%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Battery status</span>
+                                <span class="stat-val" id="host-battery">100% (AC)</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <footer class="desktop-footer">
+                <p>Designed for Mac and Mobile devices. Pure Web Interface.</p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- ==================== MOBILE CONTROLLER VIEW ==================== -->
+    <div id="mobile-view" class="view-container hidden">
+        <!-- Status Bar -->
+        <header class="mobile-status-bar">
+            <div class="left-section">
+                <span class="brand"><span class="brand-accent">MAC</span>DECK</span>
+                <span class="active-app-badge" id="mobile-active-app">Safari</span>
+            </div>
+            
+            <div class="right-section">
+                <div class="stat-pill">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1h-6v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.4z"/></svg>
+                    <span id="mobile-stat-cpu">0%</span>
+                </div>
+                <div class="stat-pill">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+                    <span id="mobile-stat-battery">--%</span>
+                </div>
+                <div class="time-clock" id="mobile-time">12:00 PM</div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Panels -->
+        <main class="mobile-content">
+            <!-- 1. APP LIBRARY VIEW -->
+            <section id="panel-apps" class="panel-section active">
+                <div class="section-title-bar">
+                    <h2>Library</h2>
+                    <button class="btn btn-secondary btn-sm" id="btn-edit-library">Edit</button>
+                </div>
+                
+                <div class="library-carousel" id="apps-carousel">
+                    <!-- Dynamic App Cards injected here -->
+                </div>
+            </section>
+
+            <!-- 2. TRACKPAD VIEW -->
+            <section id="panel-trackpad" class="panel-section">
+                <div class="trackpad-container">
+                    <div id="virtual-trackpad" class="glass">
+                        <div class="trackpad-helper">
+                            <span class="icon">🖐️</span>
+                            <span class="text">Drag for Mouse. Tap to Click. Two fingers to Scroll.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="trackpad-controls">
+                        <div class="sensitivity-slider-box">
+                            <label for="trackpad-sens">Sensitivity</label>
+                            <input type="range" id="trackpad-sens" min="0.5" max="3" step="0.1" value="1.2">
+                            <span id="sens-val">1.2x</span>
+                        </div>
+                    </div>
+                    
+                    <div class="trackpad-buttons">
+                        <button id="track-left-click" class="track-btn">LEFT CLICK</button>
+                        <button id="track-right-click" class="track-btn">RIGHT CLICK</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. KEYBOARD VIEW -->
+            <section id="panel-keyboard" class="panel-section">
+                <div class="keyboard-container">
+                    <!-- Text Area For Typing -->
+                    <div class="keyboard-input-wrapper">
+                        <input type="text" id="keyboard-input" placeholder="Tap here to type on MacBook..." autocomplete="off" autocapitalize="off" spellcheck="false">
+                        <button id="keyboard-clear-btn" class="btn btn-secondary btn-xs">Clear</button>
+                    </div>
+
+                    <!-- Sticky Modifier Row -->
+                    <div class="modifier-row">
+                        <button class="key-modifier" data-mod="cmd">⌘ Cmd</button>
+                        <button class="key-modifier" data-mod="shift">⇧ Shift</button>
+                        <button class="key-modifier" data-mod="opt">⌥ Option</button>
+                        <button class="key-modifier" data-mod="ctrl">⌃ Control</button>
+                    </div>
+
+                    <!-- Action/Navigation Row -->
+                    <div class="action-keys-grid">
+                        <button class="key-action" data-keycode="53">Esc</button>
+                        <button class="key-action" data-keycode="48">Tab</button>
+                        <button class="key-action" data-keycode="51">⌫ Backspace</button>
+                        <button class="key-action" data-keycode="36">↩ Enter</button>
+                    </div>
+
+                    <!-- Layout of Arrow Keys & Shortcuts -->
+                    <div class="keyboard-layout-grid">
+                        <!-- Navigation Pad -->
+                        <div class="nav-direction-pad glass">
+                            <button class="key-action nav-arrow up" data-keycode="126">▲</button>
+                            <button class="key-action nav-arrow left" data-keycode="123">◀</button>
+                            <button class="key-action nav-arrow down" data-keycode="125">▼</button>
+                            <button class="key-action nav-arrow right" data-keycode="124">▶</button>
+                        </div>
+                        
+                        <!-- Core Mac Macros -->
+                        <div class="macro-grid">
+                            <button class="macro-btn" data-macro="copy">⌘C Copy</button>
+                            <button class="macro-btn" data-macro="paste">⌘V Paste</button>
+                            <button class="macro-btn" data-macro="spotlight">⌘Space Spotlight</button>
+                            <button class="macro-btn" data-macro="app-switch">⌘Tab App Switch</button>
+                            <button class="macro-btn" data-macro="undo">⌘Z Undo</button>
+                            <button class="macro-btn" data-macro="quit">⌘Q Quit App</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. CONTROLLER VIEW -->
+            <section id="panel-controller" class="panel-section">
+                <div class="controller-overlay-container">
+                    <!-- Left Side: D-Pad -->
+                    <div class="controller-side left-side">
+                        <div class="virtual-dpad">
+                            <button class="dpad-btn dpad-up key-action" data-keycode="126">
+                                <span class="arrow-shape"></span>
+                            </button>
+                            <button class="dpad-btn dpad-left key-action" data-keycode="123">
+                                <span class="arrow-shape"></span>
+                            </button>
+                            <div class="dpad-center"></div>
+                            <button class="dpad-btn dpad-right key-action" data-keycode="124">
+                                <span class="arrow-shape"></span>
+                            </button>
+                            <button class="dpad-btn dpad-down key-action" data-keycode="125">
+                                <span class="arrow-shape"></span>
+                            </button>
+                        </div>
+                        <div class="joystick-pad glass" id="controller-left-joystick">
+                            <div class="joystick-knob"></div>
+                            <span class="joystick-label">MOUSE</span>
+                        </div>
+                    </div>
+
+                    <!-- Center details / Bumpers -->
+                    <div class="controller-center">
+                        <div class="shoulder-buttons">
+                            <button class="btn btn-secondary shoulder-btn key-action" data-keycode="116" id="controller-l1">L1 (PgUp)</button>
+                            <button class="btn btn-secondary shoulder-btn key-action" data-keycode="121" id="controller-r1">R1 (PgDn)</button>
+                        </div>
+                        <div class="select-start-buttons">
+                            <button class="btn btn-dark select-btn key-action" data-keycode="53">ESC</button>
+                            <button class="btn btn-dark start-btn key-action" data-keycode="49">SPACE</button>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: ABXY Face Buttons -->
+                    <div class="controller-side right-side">
+                        <div class="face-buttons">
+                            <button class="face-btn btn-y key-action" data-keycode="48">Y
+                                <span class="action-desc">Tab</span>
+                            </button>
+                            <button class="face-btn btn-x key-action" data-keycode="49">X
+                                <span class="action-desc">Space</span>
+                            </button>
+                            <button class="face-btn btn-b key-action" data-keycode="53">B
+                                <span class="action-desc">Esc</span>
+                            </button>
+                            <button class="face-btn btn-a key-action" data-keycode="36">A
+                                <span class="action-desc">Enter</span>
+                            </button>
+                        </div>
+                        <div class="joystick-pad glass" id="controller-right-joystick">
+                            <div class="joystick-knob"></div>
+                            <span class="joystick-label">SCROLL</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. SETTINGS / MEDIA VIEW -->
+            <section id="panel-settings" class="panel-section">
+                <div class="settings-container">
+                    <!-- Media Controller -->
+                    <div class="settings-card glass">
+                        <h3>🎵 Media Desk</h3>
+                        <div class="media-row">
+                            <button class="media-btn" id="media-prev" data-media="prev">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6L18 6v12z"/></svg>
+                            </button>
+                            <button class="media-btn play-pause" id="media-play" data-media="play">
+                                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            </button>
+                            <button class="media-btn" id="media-next" data-media="next">
+                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg>
+                            </button>
+                        </div>
+                        
+                        <div class="slider-group">
+                            <label>🔊 System Volume</label>
+                            <div class="slider-wrapper">
+                                <input type="range" id="volume-slider" min="0" max="100" value="50">
+                                <span class="slider-val" id="vol-val">50%</span>
+                            </div>
+                        </div>
+
+                        <div class="slider-group">
+                            <label>☀️ Screen Brightness</label>
+                            <div class="slider-wrapper">
+                                <button class="btn btn-secondary btn-sm" id="bright-down" data-media="brightness_down">🔆-</button>
+                                <button class="btn btn-secondary btn-sm" id="bright-up" data-media="brightness_up">🔆+</button>
+                                <span style="margin-left:auto; font-size: 0.9em; opacity: 0.7;">Adjust Steps</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Commands -->
+                    <div class="settings-card glass">
+                        <h3>⚙️ System Actions</h3>
+                        <div class="system-actions-grid">
+                            <button class="sys-btn" id="sys-desktop" data-action="desktop">📺 Hide Windows</button>
+                            <button class="sys-btn" id="sys-mission" data-action="mission_control">🎛️ Mission Control</button>
+                            <button class="sys-btn" id="sys-lock" data-action="lock">🔒 Lock Screen</button>
+                            <button class="sys-btn warning" id="sys-sleep" data-action="sleep">💤 Sleep Mac</button>
+                        </div>
+                    </div>
+
+                    <!-- Connection Status -->
+                    <div class="settings-card glass">
+                        <h3>📡 Connection Status</h3>
+                        <div class="conn-status-row">
+                            <span class="status-label">Access State:</span>
+                            <span class="status-val text-green" id="mobile-ws-status">Connected</span>
+                        </div>
+                        <div class="conn-status-row">
+                            <span class="status-label">macOS Permissions:</span>
+                            <span class="status-val" id="mobile-perm-status">Checking...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Navigation Bar -->
+        <nav class="mobile-nav-bar">
+            <button class="nav-item active" data-target="panel-apps">
+                <div class="icon">🎮</div>
+                <div class="label">Library</div>
+            </button>
+            <button class="nav-item" data-target="panel-trackpad">
+                <div class="icon">🖐️</div>
+                <div class="label">Trackpad</div>
+            </button>
+            <button class="nav-item" data-target="panel-keyboard">
+                <div class="icon">⌨️</div>
+                <div class="label">Keyboard</div>
+            </button>
+            <button class="nav-item" data-target="panel-controller">
+                <div class="icon">🕹️</div>
+                <div class="label">Gamepad</div>
+            </button>
+            <button class="nav-item" data-target="panel-settings">
+                <div class="icon">⚙️</div>
+                <div class="label">System</div>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ==================== MANAGE LIBRARY MODAL ==================== -->
+    <div id="library-modal" class="modal-overlay hidden">
+        <div class="modal-content glass">
+            <header class="modal-header">
+                <h2>Manage Library</h2>
+                <button class="modal-close" id="modal-close-btn">&times;</button>
+            </header>
+            
+            <div class="modal-body">
+                <!-- Tab headers inside modal -->
+                <div class="modal-tabs">
+                    <button class="modal-tab-btn active" id="tab-add-system">System Apps</button>
+                    <button class="modal-tab-btn" id="tab-add-custom">Custom Item</button>
+                </div>
+
+                <!-- Tab 1: System Apps Scanner -->
+                <div class="modal-tab-panel active" id="panel-add-system">
+                    <div class="search-box">
+                        <input type="text" id="app-search" placeholder="Search installed Mac apps...">
+                    </div>
+                    <div class="apps-list-container" id="system-apps-list">
+                        <!-- Loaded from API -->
+                        <div class="loading-spinner">Scanning applications...</div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Custom URL / Shortcut App -->
+                <div class="modal-tab-panel" id="panel-add-custom">
+                    <form id="custom-app-form">
+                        <div class="form-group">
+                            <label for="custom-name">Display Name</label>
+                            <input type="text" id="custom-name" placeholder="e.g. YouTube" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="custom-path">Command or Target Application</label>
+                            <input type="text" id="custom-path" placeholder="e.g. Google Chrome, /Applications/Safari.app, etc." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="custom-icon">Icon Emoji</label>
+                            <input type="text" id="custom-icon" placeholder="e.g. 📺, 🚀, 🎵" value="🚀">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Add to Carousel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Entrypoint -->
+    <script src="app.js"></script>
+</body>
+</html>

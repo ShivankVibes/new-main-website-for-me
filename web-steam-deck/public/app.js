@@ -120,7 +120,82 @@ document.addEventListener('DOMContentLoaded', () => {
         const qrContainer = document.getElementById('qr-container');
         let mobileLink = '';
 
+        let localHelperWs = null;
+        let isLocalHelperConnected = false;
+
+        function connectLocalHelper() {
+            const tempWs = new WebSocket('ws://localhost:3000');
+            tempWs.onopen = () => {
+                localHelperWs = tempWs;
+                isLocalHelperConnected = true;
+                
+                // Update badge and hide simulation
+                const connectionStatus = document.getElementById('desktop-connection-status');
+                if (connectionStatus) {
+                    connectionStatus.innerHTML = '<span class="dot pulse-green"></span> Controlling Mac';
+                    connectionStatus.className = "badge status-connected";
+                    connectionStatus.style.background = "";
+                    connectionStatus.style.color = "";
+                    connectionStatus.style.borderColor = "";
+                }
+                
+                // Show actual Mac controller indicator overlay on desktop screen panel
+                const simDesktop = document.getElementById('simulated-mac-desktop');
+                if (simDesktop) {
+                    let overlay = document.getElementById('mac-control-overlay');
+                    if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.id = 'mac-control-overlay';
+                        overlay.style.position = 'absolute';
+                        overlay.style.top = '0'; overlay.style.left = '0';
+                        overlay.style.width = '100%'; overlay.style.height = '100%';
+                        overlay.style.background = 'rgba(15,23,42,0.95)';
+                        overlay.style.zIndex = '500';
+                        overlay.style.display = 'flex';
+                        overlay.style.flexDirection = 'column';
+                        overlay.style.alignItems = 'center';
+                        overlay.style.justifyContent = 'center';
+                        overlay.style.color = '#10b981';
+                        overlay.innerHTML = `
+                            <span style="font-size: 3rem; margin-bottom: 12px;">🖥️</span>
+                            <h2 style="font-weight: 700; font-size: 1.2rem; color: white;">Controlling Actual Mac</h2>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 6px; text-align: center; max-width: 280px; line-height: 1.4;">
+                                Your phone is connected! Any movements or typing are injected directly into your macOS system.
+                            </p>
+                        `;
+                        simDesktop.appendChild(overlay);
+                    }
+                }
+            };
+
+            tempWs.onclose = () => {
+                localHelperWs = null;
+                isLocalHelperConnected = false;
+                
+                // Restore demo mode badge and remove overlay
+                const connectionStatus = document.getElementById('desktop-connection-status');
+                if (connectionStatus && isDemoMode) {
+                    connectionStatus.innerHTML = '<span class="dot" style="background:#3b82f6;box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></span> Demo Mode';
+                    connectionStatus.className = "badge";
+                    connectionStatus.style.background = "rgba(59, 130, 246, 0.12)";
+                    connectionStatus.style.color = "#60a5fa";
+                    connectionStatus.style.borderColor = "rgba(59, 130, 246, 0.25)";
+                }
+                const overlay = document.getElementById('mac-control-overlay');
+                if (overlay) overlay.remove();
+                
+                // Try to reconnect to local helper periodically
+                setTimeout(connectLocalHelper, 5000);
+            };
+
+            tempWs.onerror = () => {
+                tempWs.close();
+            };
+        }
+
         if (isDemoMode) {
+            connectLocalHelper();
+
             // =================================================================
             // INTERACTIVE WEB DEMO MODE RUNTIME
             // =================================================================
@@ -250,7 +325,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // ntfy wraps messages in event data
                     const payload = JSON.parse(data.message);
                     
-                    // Handle events
+                    // IF local helper is active, forward directly to the actual Mac!
+                    if (isLocalHelperConnected && localHelperWs) {
+                        localHelperWs.send(JSON.stringify(payload));
+                        return;
+                    }
+
+                    // Otherwise, execute on simulated desktop...
                     if (payload.type === 'mouse_move') {
                         demoCursorPos.x += payload.dx * 0.5;
                         demoCursorPos.y += payload.dy * 0.5;

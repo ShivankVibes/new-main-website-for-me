@@ -371,6 +371,10 @@ server.listen(PORT, '0.0.0.0', () => {
     setInterval(() => publishStatsToCloud(topicName), 5000);
     // Initial stats publish
     setTimeout(() => publishStatsToCloud(topicName), 1000);
+
+    // Publish real installed app list on startup and refresh daily
+    setTimeout(() => publishAppsToCloud(topicName), 3000);
+    setInterval(() => publishAppsToCloud(topicName), 24 * 60 * 60 * 1000);
 });
 
 // Centralized Payload Handler (WebSocket + Cloud Relay)
@@ -492,21 +496,37 @@ function publishStatsToCloud(topic) {
                 stats: cachedStats
             };
             
-            const postData = JSON.stringify(payload);
-            const req = https.request({
-                hostname: 'ntfy.sh',
-                port: 443,
-                path: `/${topic}-stats`,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': Buffer.byteLength(postData)
-                }
-            }, (res) => {});
-            
-            req.on('error', () => {});
-            req.write(postData);
-            req.end();
+            ntfyPost(`${topic}-stats`, payload);
         });
     });
+}
+
+// Helper to POST JSON to ntfy.sh
+function ntfyPost(topic, payload) {
+    const postData = JSON.stringify(payload);
+    const req = https.request({
+        hostname: 'ntfy.sh',
+        port: 443,
+        path: `/${topic}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData)
+        }
+    }, (res) => {});
+    req.on('error', () => {});
+    req.write(postData);
+    req.end();
+}
+
+// Publish the real installed app list to ntfy.sh so Netlify can read it
+function publishAppsToCloud(topic) {
+    const apps = getInstalledApps();
+    const payload = {
+        type: 'apps_list',
+        apps: apps,
+        publishedAt: Date.now()
+    };
+    ntfyPost(`${topic}-apps`, payload);
+    console.log(`📦 Published ${apps.length} installed apps to cloud (ntfy.sh/${topic}-apps)`);
 }

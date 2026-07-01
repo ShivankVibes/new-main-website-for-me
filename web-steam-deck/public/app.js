@@ -1116,34 +1116,38 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fetch installed applications from host
         let scannedApps = [];
 
-        // Comprehensive fallback list for cloud/Netlify mode
-        // (since /api/apps is only available when server.js is running locally)
-        const COMMON_MAC_APPS = [
-            "1Password", "AirDrop", "App Store", "Apple Configurator", "Arc",
-            "Automator", "Brave Browser", "Calculator", "Calendar", "Chess",
-            "Contacts", "Cursor", "Discord", "DiskDiag", "Docker",
-            "FaceTime", "Final Cut Pro", "Finder", "Firefox", "Figma",
-            "Font Book", "Framer", "GarageBand", "Google Chrome", "IINA",
-            "Image Capture", "iMessage", "iMovie", "iPhone Mirroring", "iTerm",
-            "iTunes", "Keynote", "Linear", "Logic Pro", "Loom",
-            "Mail", "Maps", "Messages", "Microsoft Excel", "Microsoft OneNote",
-            "Microsoft Outlook", "Microsoft PowerPoint", "Microsoft Teams",
-            "Microsoft Word", "Music", "News", "Notes", "Notion",
-            "Numbers", "Obsidian", "Pages", "Photos", "Photoshop",
-            "Podcasts", "Raycast", "Reminders", "Safari", "Shortcuts",
-            "Sketch", "Slack", "Spotify", "Steam", "System Preferences",
-            "System Settings", "Terminal", "TextEdit", "Tot", "Transmit",
-            "Tuple", "Twitch", "VLC", "VS Code", "WhatsApp",
-            "Xcode", "Zoom"
-        ].map(name => ({ name, path: name }));
 
         function loadSystemApplications() {
             systemAppsList.innerHTML = '<div class="loading-spinner">Scanning applications...</div>';
 
             if (!isLocalServer) {
-                // Cloud mode: use built-in common Mac apps list instantly
-                scannedApps = COMMON_MAC_APPS;
-                renderScannedAppsList(COMMON_MAC_APPS);
+                // Cloud mode: fetch the real app list published by the Mac's server.js
+                // The Mac publishes its actual /Applications list to ntfy.sh/{topic}-apps on startup
+                fetch(`https://ntfy.sh/${MAC_NTFY_TOPIC}-apps/json?poll=1&since=1d`)
+                    .then(res => res.text())
+                    .then(text => {
+                        // ntfy.sh returns newline-delimited JSON; take the last line
+                        const lines = text.trim().split('\n').filter(Boolean);
+                        if (lines.length === 0) throw new Error('No app list published yet');
+                        const lastMsg = JSON.parse(lines[lines.length - 1]);
+                        const payload = JSON.parse(lastMsg.message);
+                        if (payload.type === 'apps_list' && Array.isArray(payload.apps)) {
+                            scannedApps = payload.apps;
+                            renderScannedAppsList(payload.apps);
+                        } else {
+                            throw new Error('Invalid app list format');
+                        }
+                    })
+                    .catch(() => {
+                        // Mac hasn't published its app list yet (server not running)
+                        systemAppsList.innerHTML = `
+                            <div style="text-align:center; padding: 24px 16px; color: var(--text-secondary); font-size: 0.82rem; line-height: 1.7;">
+                                <div style="font-size: 2rem; margin-bottom: 8px;">🖥️</div>
+                                <strong style="color: var(--text-primary);">Mac is offline</strong><br>
+                                Start <code>server.js</code> on your Mac to sync your real app list.<br>
+                                <span style="font-size: 0.75rem; opacity: 0.7;">Or use the <strong>Custom</strong> tab to add any app by name.</span>
+                            </div>`;
+                    });
                 return;
             }
 
@@ -1155,9 +1159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderScannedAppsList(apps);
                 })
                 .catch(() => {
-                    // Fallback to built-in list if local fetch fails
-                    scannedApps = COMMON_MAC_APPS;
-                    renderScannedAppsList(COMMON_MAC_APPS);
+                    systemAppsList.innerHTML = '<div class="loading-spinner">Failed to load apps.</div>';
                 });
         }
 

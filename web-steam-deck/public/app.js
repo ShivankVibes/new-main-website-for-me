@@ -13,11 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const forceMobile = urlParams.has('mode') && urlParams.get('mode') === 'mobile';
     const forceDesktop = urlParams.has('mode') && urlParams.get('mode') === 'desktop';
+    const session = urlParams.get('session') || null;
+    const isController = urlParams.get('role') === 'controller' || session !== null;
+    const isDemoMode = (session !== null) || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !window.location.hostname.startsWith('192.168.'));
 
     const desktopView = document.getElementById('desktop-view');
     const mobileView = document.getElementById('mobile-view');
 
-    if ((isMobileDevice || forceMobile) && !forceDesktop) {
+    if ((isMobileDevice || forceMobile || isController) && !forceDesktop) {
         desktopView.classList.add('hidden');
         mobileView.classList.remove('hidden');
         initMobileController();
@@ -114,35 +117,329 @@ document.addEventListener('DOMContentLoaded', () => {
         const hostMem = document.getElementById('host-mem');
         const hostBattery = document.getElementById('host-battery');
 
-        // Set up host connection UI details dynamically from server config
+        const qrContainer = document.getElementById('qr-container');
         let mobileLink = '';
-        fetch('/api/server-info')
-            .then(res => res.json())
-            .then(data => {
-                mobileLink = data.url;
-                mobileUrlCode.textContent = data.url;
-                
-                const qrContainer = document.getElementById('qr-container');
-                if (data.qrCode && qrContainer) {
-                    // Inject raw SVG elements
-                    qrContainer.innerHTML = data.qrCode;
-                    const svg = qrContainer.querySelector('svg');
-                    if (svg) {
-                        svg.style.width = '100%';
-                        svg.style.height = '100%';
-                        svg.style.display = 'block';
-                    }
+
+        if (isDemoMode) {
+            // =================================================================
+            // INTERACTIVE WEB DEMO MODE RUNTIME
+            // =================================================================
+            const connectionStatus = document.getElementById('desktop-connection-status');
+            if (connectionStatus) {
+                connectionStatus.innerHTML = '<span class="dot" style="background:#3b82f6;box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></span> Demo Mode';
+                connectionStatus.className = "badge";
+                connectionStatus.style.background = "rgba(59, 130, 246, 0.12)";
+                connectionStatus.style.color = "#60a5fa";
+                connectionStatus.style.borderColor = "rgba(59, 130, 246, 0.25)";
+            }
+
+            // Hide/Show correct panels
+            document.querySelectorAll('.local-only').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.demo-only').forEach(el => el.classList.remove('hidden'));
+
+            // Generate random session ID if not set
+            const currentSession = session || Math.random().toString(36).substr(2, 8);
+            const controllerUrl = window.location.origin + window.location.pathname + '?session=' + currentSession + '&role=controller';
+            mobileLink = controllerUrl;
+            mobileUrlCode.textContent = controllerUrl;
+
+            // Generate QR Code via free public API
+            if (qrContainer) {
+                const qrImg = document.createElement('img');
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(controllerUrl)}`;
+                qrImg.style.width = '100%';
+                qrImg.style.height = '100%';
+                qrContainer.innerHTML = '';
+                qrContainer.appendChild(qrImg);
+            }
+
+            // Simulated macOS Desktop logic
+            const desktopArea = document.querySelector('.sim-desktop-area');
+            const virtualCursor = document.getElementById('sim-mouse-cursor');
+            let demoCursorPos = { x: 200, y: 150 };
+
+            // Clock updater
+            const simClock = document.getElementById('sim-clock');
+            function updateSimClock() {
+                const now = new Date();
+                let hours = now.getHours();
+                let minutes = now.getMinutes();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                simClock.textContent = `${days[now.getDay()]} ${hours}:${minutes} ${ampm}`;
+            }
+            setInterval(updateSimClock, 5000);
+            updateSimClock();
+
+            // Window controls
+            const windows = document.querySelectorAll('.sim-window');
+            const dockItems = document.querySelectorAll('.dock-item');
+            let zIndexCounter = 30;
+
+            function focusWindow(win) {
+                windows.forEach(w => w.classList.remove('active'));
+                win.classList.add('active');
+                zIndexCounter++;
+                win.style.zIndex = zIndexCounter;
+            }
+
+            function toggleWindow(appId) {
+                const win = document.getElementById(appId);
+                if (!win) return;
+                if (win.classList.contains('hidden')) {
+                    win.classList.remove('hidden');
+                    // Center it
+                    const w = win.offsetWidth || 320;
+                    const h = win.offsetHeight || 220;
+                    win.style.left = ((desktopArea.offsetWidth - w) / 2) + 'px';
+                    win.style.top = ((desktopArea.offsetHeight - h) / 2) + 'px';
+                    focusWindow(win);
                 } else {
-                    document.getElementById('qr-fallback').classList.remove('hidden');
+                    win.classList.add('hidden');
                 }
-            })
-            .catch(err => {
-                console.error("Failed to load server info:", err);
-                const hostUrl = `${window.location.protocol}//${window.location.host}`;
-                mobileUrlCode.textContent = hostUrl;
-                mobileLink = hostUrl;
-                document.getElementById('qr-fallback').classList.remove('hidden');
+            }
+
+            // Bind manual clicks to simulated elements (for testing directly on Mac)
+            dockItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const appId = item.getAttribute('data-app');
+                    toggleWindow(appId);
+                });
             });
+
+            document.querySelectorAll('.win-close-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const win = btn.closest('.sim-window');
+                    if (win) win.classList.add('hidden');
+                });
+            });
+
+            windows.forEach(win => {
+                win.addEventListener('mousedown', () => focusWindow(win));
+            });
+
+            // Simulated Dragging variables
+            let draggedWindow = null;
+            let dragOffset = { x: 0, y: 0 };
+
+            // Connect to ntfy.sh EventSource for phone signals
+            const sse = new EventSource(`https://ntfy.sh/macdeck-${currentSession}/sse`);
+            console.log(`Subscribed to ntfy.sh topic: macdeck-${currentSession}`);
+
+            // Spotify play toggle simulation
+            const simPlayBtn = document.getElementById('sim-play-btn');
+            const simSpotifyArt = document.getElementById('sim-spotify-art');
+            let isSpotifyPlaying = false;
+            if (simPlayBtn) {
+                simPlayBtn.addEventListener('click', () => {
+                    isSpotifyPlaying = !isSpotifyPlaying;
+                    simPlayBtn.textContent = isSpotifyPlaying ? '⏸️' : '▶️';
+                    simSpotifyArt.textContent = isSpotifyPlaying ? '🔊' : '🎵';
+                });
+            }
+
+            // Keyboard text editor
+            const simTextEditor = document.getElementById('sim-text-editor');
+
+            sse.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    // ntfy wraps messages in event data
+                    const payload = JSON.parse(data.message);
+                    
+                    // Handle events
+                    if (payload.type === 'mouse_move') {
+                        demoCursorPos.x += payload.dx * 0.5;
+                        demoCursorPos.y += payload.dy * 0.5;
+
+                        // Bounds checking
+                        demoCursorPos.x = Math.max(0, Math.min(demoCursorPos.x, desktopArea.offsetWidth));
+                        demoCursorPos.y = Math.max(24, Math.min(demoCursorPos.y, desktopArea.offsetHeight));
+
+                        // Render cursor
+                        if (virtualCursor) {
+                            virtualCursor.style.left = demoCursorPos.x + 'px';
+                            virtualCursor.style.top = demoCursorPos.y + 'px';
+                        }
+
+                        // Drag window
+                        if (draggedWindow) {
+                            let newLeft = demoCursorPos.x - dragOffset.x;
+                            let newTop = demoCursorPos.y - dragOffset.y;
+                            draggedWindow.style.left = newLeft + 'px';
+                            draggedWindow.style.top = newTop + 'px';
+                        }
+                    } 
+                    else if (payload.type === 'mouse_click') {
+                        const areaRect = desktopArea.getBoundingClientRect();
+                        const clientX = areaRect.left + demoCursorPos.x;
+                        const clientY = areaRect.top + demoCursorPos.y;
+
+                        if (payload.action === 'press') {
+                            const el = document.elementFromPoint(clientX, clientY);
+                            if (el) {
+                                const dockItem = el.closest('.dock-item');
+                                if (dockItem) {
+                                    toggleWindow(dockItem.getAttribute('data-app'));
+                                } else {
+                                    el.click();
+                                    const win = el.closest('.sim-window');
+                                    if (win) focusWindow(win);
+                                    const close = el.closest('.win-close-btn');
+                                    if (close) {
+                                        const wToClose = el.closest('.sim-window');
+                                        if (wToClose) wToClose.classList.add('hidden');
+                                    }
+                                }
+                            }
+                        } 
+                        else if (payload.action === 'down') {
+                            const el = document.elementFromPoint(clientX, clientY);
+                            if (el) {
+                                const titlebar = el.closest('.win-titlebar');
+                                if (titlebar) {
+                                    draggedWindow = el.closest('.sim-window');
+                                    focusWindow(draggedWindow);
+                                    const winRect = draggedWindow.getBoundingClientRect();
+                                    dragOffset.x = demoCursorPos.x - (winRect.left - areaRect.left);
+                                    dragOffset.y = demoCursorPos.y - (winRect.top - areaRect.top);
+                                }
+                            }
+                        } 
+                        else if (payload.action === 'up') {
+                            draggedWindow = null;
+                        }
+                    }
+                    else if (payload.type === 'mouse_scroll') {
+                        // Scroll currently active window if scrollable
+                        const activeWin = document.querySelector('.sim-window.active');
+                        if (activeWin) {
+                            const content = activeWin.querySelector('.win-content');
+                            if (content) {
+                                content.scrollTop += payload.dy * 1.5;
+                            }
+                        }
+                    }
+                    else if (payload.type === 'open_app') {
+                        const appPath = payload.name.toLowerCase();
+                        if (appPath.includes('spotify')) {
+                            toggleWindow('win-spotify');
+                        } else if (appPath.includes('safari') || appPath.includes('chrome')) {
+                            toggleWindow('win-safari');
+                        } else if (appPath.includes('code') || appPath.includes('vscode')) {
+                            toggleWindow('win-vscode');
+                        }
+                    }
+                    else if (payload.type === 'keyboard_type') {
+                        if (simTextEditor) {
+                            simTextEditor.value += payload.text;
+                        }
+                    }
+                    else if (payload.type === 'keyboard_key') {
+                        if (simTextEditor) {
+                            const keyCode = payload.code;
+                            if (keyCode === 127 || payload.key === 'Backspace') { // backspace
+                                simTextEditor.value = simTextEditor.value.slice(0, -1);
+                            } else if (keyCode === 36 || payload.key === 'Enter') { // enter
+                                simTextEditor.value += '\n';
+                            }
+                        }
+                    }
+                    else if (payload.type === 'media_volume' || payload.type === 'media_brightness') {
+                        // Show HUD overlay
+                        const hud = document.getElementById('sim-hud-overlay');
+                        const hudIcon = document.getElementById('sim-hud-icon');
+                        const hudFill = document.getElementById('sim-hud-fill');
+                        
+                        if (hud) {
+                            hudIcon.textContent = payload.type === 'media_volume' ? '🔊' : '🔆';
+                            let percentage = payload.value !== undefined ? payload.value : 50;
+                            hudFill.style.width = `${percentage}%`;
+                            
+                            hud.classList.remove('hidden');
+                            clearTimeout(hud.timer);
+                            hud.timer = setTimeout(() => {
+                                hud.classList.add('hidden');
+                            }, 1500);
+                        }
+                    }
+                    
+                } catch(err) {
+                    console.error("Failed to process ntfy event:", err);
+                }
+            };
+
+        } else {
+            // =================================================================
+            // LOCAL SERVER PRODUCTION MODE RUNTIME
+            // =================================================================
+            // Set up host connection info dynamically from server config
+            fetch('/api/server-info')
+                .then(res => res.json())
+                .then(data => {
+                    mobileLink = data.url;
+                    mobileUrlCode.textContent = data.url;
+                    
+                    if (data.qrCode && qrContainer) {
+                        qrContainer.innerHTML = data.qrCode;
+                        const svg = qrContainer.querySelector('svg');
+                        if (svg) {
+                            svg.style.width = '100%';
+                            svg.style.height = '100%';
+                            svg.style.display = 'block';
+                        }
+                    } else {
+                        document.getElementById('qr-fallback').classList.remove('hidden');
+                    }
+                })
+                .catch(err => {
+                    console.error("Failed to load server info:", err);
+                    const hostUrl = `${window.location.protocol}//${window.location.host}`;
+                    mobileUrlCode.textContent = hostUrl;
+                    mobileLink = hostUrl;
+                    document.getElementById('qr-fallback').classList.remove('hidden');
+                });
+
+            // Fetch metrics and permissions
+            function checkPermissionsAndStats() {
+                fetch('/api/system-stats')
+                    .then(res => res.json())
+                    .then(data => {
+                        // Update permission card
+                        if (data.accessibilityTrusted) {
+                            permDot.className = 'status-dot active';
+                            permText.textContent = 'Accessibility Access Granted';
+                            permInst.classList.add('hidden');
+                        } else {
+                            permDot.className = 'status-dot inactive';
+                            permText.textContent = 'Accessibility Access Denied';
+                            permInst.classList.remove('hidden');
+                        }
+
+                        // Update system stats
+                        hostActiveApp.textContent = data.activeApp || "Unknown";
+                        hostCpu.textContent = `${data.cpu}%`;
+                        hostMem.textContent = `${data.memory}%`;
+                        
+                        let batStr = `${data.battery.percent}%`;
+                        if (data.battery.isCharging) batStr += ' (Charging)';
+                        hostBattery.textContent = batStr;
+                    })
+                    .catch(err => console.error("Error connecting to server stats API:", err));
+            }
+
+            reqPermBtn.addEventListener('click', () => {
+                fetch('/api/request-accessibility', { method: 'POST' })
+                    .then(() => checkPermissionsAndStats());
+            });
+
+            // Run check on startup and poll
+            checkPermissionsAndStats();
+            setInterval(checkPermissionsAndStats, 2000);
+        }
 
         // Copy functionality
         copyBtn.addEventListener('click', () => {
@@ -152,43 +449,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => copyBtn.textContent = 'Copy', 2000);
             });
         });
-
-        // Fetch metrics and permissions
-        function checkPermissionsAndStats() {
-            fetch('/api/system-stats')
-                .then(res => res.json())
-                .then(data => {
-                    // Update permission card
-                    if (data.accessibilityTrusted) {
-                        permDot.className = 'status-dot active';
-                        permText.textContent = 'Accessibility Access Granted';
-                        permInst.classList.add('hidden');
-                    } else {
-                        permDot.className = 'status-dot inactive';
-                        permText.textContent = 'Accessibility Access Denied';
-                        permInst.classList.remove('hidden');
-                    }
-
-                    // Update system stats
-                    hostActiveApp.textContent = data.activeApp || "Unknown";
-                    hostCpu.textContent = `${data.cpu}%`;
-                    hostMem.textContent = `${data.memory}%`;
-                    
-                    let batStr = `${data.battery.percent}%`;
-                    if (data.battery.isCharging) batStr += ' (Charging)';
-                    hostBattery.textContent = batStr;
-                })
-                .catch(err => console.error("Error connecting to server stats API:", err));
-        }
-
-        reqPermBtn.addEventListener('click', () => {
-            fetch('/api/request-accessibility', { method: 'POST' })
-                .then(() => checkPermissionsAndStats());
-        });
-
-        // Run check on startup and poll
-        checkPermissionsAndStats();
-        setInterval(checkPermissionsAndStats, 2000);
     }
 
     // ----------------------------------------------------------------------
@@ -239,7 +499,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Establish socket connection
+        let aggregatedDX = 0;
+        let aggregatedDY = 0;
+        let throttleTimer = null;
+
+        function throttleMouseMove(payload) {
+            aggregatedDX += payload.dx;
+            aggregatedDY += payload.dy;
+            
+            if (!throttleTimer) {
+                throttleTimer = setTimeout(() => {
+                    postDemoEvent({
+                        type: 'mouse_move',
+                        dx: aggregatedDX,
+                        dy: aggregatedDY
+                    });
+                    aggregatedDX = 0;
+                    aggregatedDY = 0;
+                    throttleTimer = null;
+                }, 80);
+            }
+        }
+
+        function postDemoEvent(payload) {
+            const currentSession = session || 'demo';
+            fetch(`https://ntfy.sh/macdeck-${currentSession}`, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            }).catch(e => console.error("Error posting demo event: ", e));
+        }
+
         function connectWebSocket() {
+            if (isDemoMode) {
+                mobileWsStatus.textContent = "Demo Session Active";
+                mobileWsStatus.className = "status-val text-green";
+                mobilePermStatus.textContent = "Sandbox OK";
+                mobilePermStatus.className = "status-val text-green";
+                return; // skip local WS
+            }
+
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const socketUrl = `${protocol}//${window.location.host}`;
             
@@ -247,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mobileWsStatus.className = "status-val text-muted";
             
             ws = new WebSocket(socketUrl);
-
+ 
             ws.onopen = () => {
                 console.log('Connected to server');
                 isConnected = true;
@@ -256,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 mobileWsStatus.className = "status-val text-green";
                 playSynthSound('success');
             };
-
+ 
             ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
@@ -267,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("WS error: ", e);
                 }
             };
-
+ 
             ws.onclose = () => {
                 isConnected = false;
                 mobileWsStatus.textContent = "Disconnected";
@@ -280,15 +578,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     connectWebSocket();
                 }, reconnectInterval);
             };
-
+ 
             ws.onerror = () => {
                 ws.close();
             };
         }
-
+ 
         function sendWS(payload) {
-            if (ws && isConnected && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify(payload));
+            if (isDemoMode) {
+                if (payload.type === 'mouse_move') {
+                    throttleMouseMove(payload);
+                } else {
+                    postDemoEvent(payload);
+                }
+            } else {
+                if (ws && isConnected && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify(payload));
+                }
             }
         }
 

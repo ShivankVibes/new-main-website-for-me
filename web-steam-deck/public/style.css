@@ -1346,7 +1346,373 @@ h1, h2, h3, .brand {
     color: var(--text-muted);
 }
 
+/* ==========================================================================
+   DESKTOP MAC SIMULATION (WEB DEMO MODE)
+   ========================================================================== */
+
+/* Grid and Panel adjustments */
+@media (min-width: 1024px) {
+    .desktop-grid {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+}
+
+.desktop-screen-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
+
+#simulated-mac-desktop {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/10;
+    max-height: 520px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b3c66 0%, #15162b 100%);
+    background-image: 
+        radial-gradient(circle at 80% 20%, rgba(244, 63, 94, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 10% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 0 L100 100 M100 0 L0 100' stroke='rgba(255,255,255,0.015)' stroke-width='1'/%3E%3C/svg%3E");
+    border: 5px solid #202632;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Simulated menu bar */
+.sim-menu-bar {
+    height: 24px;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    gap: 14px;
+    z-index: 100;
+}
+.sim-menu-bar .apple-logo {
+    font-size: 14px;
+    font-weight: 700;
+    margin-right: 4px;
+    cursor: default;
+}
+.sim-menu-bar .menu-item {
+    opacity: 0.85;
+    cursor: default;
+}
+.sim-menu-bar .menu-item.active {
+    font-weight: 700;
+    opacity: 1;
+}
+.sim-menu-right {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+}
+
+/* Desktop wallpaper working area */
+.sim-desktop-area {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Mouse pointer representation */
+#sim-mouse-cursor {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(0, 0);
+    transition: transform 0.04s ease-out; /* smooth lag for realism */
+}
+
+/* macOS simulated window structure */
+.sim-window {
+    position: absolute;
+    width: 320px;
+    height: 220px;
+    background: rgba(20, 26, 38, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    resize: both;
+    z-index: 10;
+    transition: box-shadow 0.2s;
+}
+.sim-window.active {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.2);
+    z-index: 20;
+}
+
+.win-titlebar {
+    height: 28px;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    position: relative;
+    cursor: move;
+}
+
+.win-buttons {
+    display: flex;
+    gap: 6px;
+    margin-right: 12px;
+}
+.win-buttons span {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+}
+.win-close-btn { background: #ff5f56; }
+.win-minimize-btn { background: #ffbd2e; }
+.win-zoom-btn { background: #27c93f; }
+
+.win-title {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin: 0 auto;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.win-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    color: white;
+}
+
+/* Safari theme content */
+.safari-navbar {
+    height: 30px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+}
+.safari-navbar .address-bar {
+    background: rgba(0,0,0,0.3);
+    width: 100%;
+    height: 20px;
+    border-radius: 4px;
+    color: var(--text-muted);
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+.safari-body {
+    padding: 14px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+.safari-body h2 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    color: white;
+}
+
+/* Spotify theme content */
+.spotify-theme {
+    background: #121212;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: row;
+}
+.spotify-sidebar {
+    width: 80px;
+    background: #000;
+    font-size: 9px;
+    padding: 10px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: #b3b3b3;
+}
+.spotify-sidebar div {
+    cursor: pointer;
+    text-align: center;
+}
+.spotify-sidebar div:hover {
+    color: white;
+}
+.spotify-main {
+    flex: 1;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.spotify-main h2 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #b3b3b3;
+    margin-bottom: 8px;
+}
+.album-art {
+    width: 50px;
+    height: 50px;
+    background: var(--accent-orange);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}
+.spotify-main h3 {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+}
+.player-controls {
+    display: flex;
+    gap: 12px;
+    font-size: 1.1rem;
+    margin-top: 4px;
+}
+
+/* VS Code theme content */
+.vscode-theme {
+    background: #1e1e1e;
+}
+.code-editor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.editor-header {
+    background: #252526;
+    height: 22px;
+    font-size: 10px;
+    color: #858585;
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #1e1e1e;
+}
+.code-editor textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    resize: none;
+    color: #9cdcfe;
+    font-family: monospace;
+    font-size: 11px;
+    padding: 10px;
+    outline: none;
+}
+
+/* macOS dock bar */
+.sim-dock {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 6px 12px;
+    display: flex;
+    gap: 14px;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.dock-item {
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.dock-item:hover {
+    transform: scale(1.3) translateY(-6px);
+}
+
+/* Hidden visual states helper */
+.demo-only.hidden, .local-only.hidden {
+    display: none !important;
+}
+
+/* macOS HUD overlay (Volume/Brightness) */
+#sim-hud-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 130px;
+    height: 130px;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    z-index: 1000;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    pointer-events: none;
+    transition: opacity 0.2s ease-out;
+}
+#sim-hud-overlay.hidden {
+    opacity: 0;
+    display: none !important;
+}
+.hud-icon {
+    font-size: 2.5rem;
+}
+.hud-bar-wrapper {
+    width: 90px;
+    height: 5px;
+    background: rgba(255,255,255,0.22);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.hud-bar-fill {
+    height: 100%;
+    background: white;
+    border-radius: 3px;
+    width: 0%;
+}
+
 /* Media Queries & Console Overlays */
+
 
 /* ==========================================================================
    LANDSCAPE CONSOLE OVERLAY FRAME

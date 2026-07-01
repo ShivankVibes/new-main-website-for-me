@@ -28,79 +28,201 @@
             </header>
 
             <div class="desktop-grid">
-                <!-- Left: QR Code & IP -->
-                <section class="qr-section">
-                    <h2>Connect Your Mobile Device</h2>
-                    <p class="subtitle">Scan this QR code with your iPhone or Android phone camera (must be on the same Wi-Fi network).</p>
-                    
-                    <div class="qr-wrapper glass" id="qr-container" style="padding: 10px; background: #fff; width: 220px; height: 220px; display: flex; align-items: center; justify-content: center;">
-                        <div id="qr-fallback" class="hidden">Could not load QR code. Connect manually.</div>
-                    </div>
-                    
-                    <div class="ip-address-box">
-                        <span class="label">Or type this URL in your phone's browser:</span>
-                        <div class="url-input-group">
-                            <code id="mobile-url">http://192.168.1.100:3000</code>
-                            <button id="copy-url-btn" class="btn btn-secondary btn-sm">Copy</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Right: Instructions & Permissions -->
-                <section class="info-section">
-                    <div class="card-panel glass">
-                        <h3>📋 Setup Instructions</h3>
-                        <ol class="setup-steps">
-                            <li>Connect your Mac and phone to the <strong>same Wi-Fi network</strong>.</li>
-                            <li>Scan the QR code to open the controller on your phone.</li>
-                            <li>Ensure Accessibility Permissions are granted below.</li>
-                        </ol>
-                    </div>
-
-                    <div class="card-panel glass security-panel">
-                        <h3>🔒 macOS Accessibility Access</h3>
-                        <p class="desc">To control the mouse cursor and simulate keyboard entries, macOS requires accessibility authorization for your terminal or editor.</p>
+                <!-- Left panel: Onboarding & Connection info -->
+                <div class="onboarding-panel">
+                    <!-- Left: QR Code & IP -->
+                    <section class="qr-section">
+                        <h2>Connect Your Mobile Device</h2>
+                        <p class="subtitle" id="qr-instructions">Scan this QR code with your iPhone or Android phone camera (must be on the same Wi-Fi network).</p>
                         
-                        <div class="permission-status" id="perm-status-box">
-                            <div class="status-indicator">
-                                <span class="status-dot" id="perm-dot"></span>
-                                <span id="perm-text">Checking permissions...</span>
+                        <div class="qr-wrapper glass" id="qr-container" style="padding: 10px; background: #fff; width: 220px; height: 220px; display: flex; align-items: center; justify-content: center;">
+                            <div id="qr-fallback" class="hidden">Could not load QR code. Connect manually.</div>
+                        </div>
+                        
+                        <div class="ip-address-box" id="ip-box">
+                            <span class="label">Or type this URL in your phone's browser:</span>
+                            <div class="url-input-group">
+                                <code id="mobile-url">http://192.168.1.100:3000</code>
+                                <button id="copy-url-btn" class="btn btn-secondary btn-sm">Copy</button>
                             </div>
-                            <button id="request-perm-btn" class="btn btn-primary">Check Again</button>
                         </div>
-                        
-                        <div class="permission-instructions warning hidden" id="perm-inst">
-                            <strong>How to enable:</strong>
-                            <ol>
-                               <li>Open <strong>System Settings</strong>.</li>
-                               <li>Go to <strong>Privacy & Security</strong> &gt; <strong>Accessibility</strong>.</li>
-                               <li>Enable the switch for your terminal application (e.g. <em>Terminal, iTerm, or VS Code</em>).</li>
+                    </section>
+                    
+                    <!-- Instructions -->
+                    <section class="info-section">
+                        <div class="card-panel glass local-only" id="local-setup-card">
+                            <h3>📋 Setup Instructions</h3>
+                            <ol class="setup-steps">
+                                <li>Connect your Mac and phone to the <strong>same Wi-Fi network</strong>.</li>
+                                <li>Scan the QR code to open the controller on your phone.</li>
+                                <li>Ensure Accessibility Permissions are granted below.</li>
                             </ol>
                         </div>
-                    </div>
+                        
+                        <div class="card-panel glass demo-only hidden" id="demo-setup-card">
+                            <h3>⚡ Interactive Web Demo</h3>
+                            <p class="desc" style="font-size: 0.8rem; line-height: 1.4; color: var(--text-secondary);">
+                                You are running in <strong>Demo Mode</strong> without downloads! Scan the QR code with your phone to control the simulated macOS screen on the right in real-time.
+                            </p>
+                        </div>
 
-                    <div class="card-panel glass stats-panel">
-                        <h3>🖥️ Host System Details</h3>
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <span class="stat-label">Active Application</span>
-                                <span class="stat-val" id="host-active-app">None</span>
+                        <div class="card-panel glass security-panel local-only">
+                            <h3>🔒 macOS Accessibility Access</h3>
+                            <p class="desc">To control the mouse cursor and simulate keyboard entries, macOS requires accessibility authorization for your terminal or editor.</p>
+                            
+                            <div class="permission-status" id="perm-status-box">
+                                <div class="status-indicator">
+                                    <span class="status-dot" id="perm-dot"></span>
+                                    <span id="perm-text">Checking permissions...</span>
+                                </div>
+                                <button id="request-perm-btn" class="btn btn-primary">Check Again</button>
                             </div>
-                            <div class="stat-item">
-                                <span class="stat-label">CPU Load</span>
-                                <span class="stat-val" id="host-cpu">0%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Memory Usage</span>
-                                <span class="stat-val" id="host-mem">0%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Battery status</span>
-                                <span class="stat-val" id="host-battery">100% (AC)</span>
+                            
+                            <div class="permission-instructions warning hidden" id="perm-inst">
+                                <strong>How to enable:</strong>
+                                <ol>
+                                   <li>Open <strong>System Settings</strong>.</li>
+                                   <li>Go to <strong>Privacy & Security</strong> &gt; <strong>Accessibility</strong>.</li>
+                                   <li>Enable the switch for your terminal application (e.g. <em>Terminal, iTerm, or VS Code</em>).</li>
+                                </ol>
                             </div>
                         </div>
+
+                        <div class="card-panel glass stats-panel" id="stats-panel-card">
+                            <h3>🖥️ Host System Details</h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span class="stat-label">Active Application</span>
+                                    <span class="stat-val" id="host-active-app">None</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">CPU Load</span>
+                                    <span class="stat-val" id="host-cpu">0%</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Memory Usage</span>
+                                    <span class="stat-val" id="host-mem">0%</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Battery status</span>
+                                    <span class="stat-val" id="host-battery">100% (AC)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right panel: Simulated macOS Screen -->
+                <div class="desktop-screen-panel">
+                    <div id="simulated-mac-desktop">
+                        <div class="sim-screen-glow"></div>
+                        <div class="sim-menu-bar">
+                            <span class="apple-logo"></span>
+                            <span class="menu-item active">Finder</span>
+                            <span class="menu-item">File</span>
+                            <span class="menu-item">Edit</span>
+                            <span class="menu-item">View</span>
+                            <span class="menu-item">Go</span>
+                            <span class="menu-item">Window</span>
+                            <span class="menu-item">Help</span>
+                            <div class="sim-menu-right">
+                                <span class="menu-item">100% 🔋</span>
+                                <span class="menu-item" id="sim-clock">Wed 6:57 PM</span>
+                            </div>
+                        </div>
+                        
+                        <div class="sim-desktop-area">
+                            <!-- Virtual Mouse Cursor -->
+                            <div id="sim-mouse-cursor">
+                                <svg viewBox="0 0 24 24" width="22" height="22">
+                                    <path d="M4.5,2.5 L4.5,21.5 L9.8,16.2 L14.9,21.3 L17.5,18.7 L12.4,13.6 L18.5,13.6 Z" fill="black" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+
+                            <!-- Safari Window -->
+                            <div class="sim-window hidden" id="win-safari">
+                                <div class="win-titlebar">
+                                    <div class="win-buttons">
+                                        <span class="win-close-btn" data-close="win-safari"></span>
+                                        <span class="win-minimize-btn"></span>
+                                        <span class="win-zoom-btn"></span>
+                                    </div>
+                                    <span class="win-title">🌐 Safari - Web Browser</span>
+                                </div>
+                                <div class="win-content">
+                                    <div class="safari-navbar">
+                                        <div class="address-bar">https://shivankvibes.netlify.app</div>
+                                    </div>
+                                    <div class="safari-body">
+                                        <h2>Welcome to Shivank's Portfolio!</h2>
+                                        <p>This virtual browser window is running inside a simulated macOS desktop.</p>
+                                        <p>Drag windows around with the trackpad, open apps from the Dock below, or type text using your phone keyboard!</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Spotify Window -->
+                            <div class="sim-window hidden" id="win-spotify">
+                                <div class="win-titlebar">
+                                    <div class="win-buttons">
+                                        <span class="win-close-btn" data-close="win-spotify"></span>
+                                        <span class="win-minimize-btn"></span>
+                                        <span class="win-zoom-btn"></span>
+                                    </div>
+                                    <span class="win-title">🎵 Spotify</span>
+                                </div>
+                                <div class="win-content spotify-theme">
+                                    <div class="spotify-sidebar">
+                                        <div>🏠 Home</div>
+                                        <div>🔍 Search</div>
+                                        <div>📚 Your Library</div>
+                                    </div>
+                                    <div class="spotify-main">
+                                        <h2>Now Playing</h2>
+                                        <div class="album-art" id="sim-spotify-art">🔊</div>
+                                        <h3 id="sim-spotify-title">Shivank Vibes - Lofi Mix</h3>
+                                        <div class="player-controls">
+                                            <span>⏮️</span> <span id="sim-play-btn" style="cursor:pointer;">▶️</span> <span>⏭️</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- VS Code Window -->
+                            <div class="sim-window hidden" id="win-vscode">
+                                <div class="win-titlebar">
+                                    <div class="win-buttons">
+                                        <span class="win-close-btn" data-close="win-vscode"></span>
+                                        <span class="win-minimize-btn"></span>
+                                        <span class="win-zoom-btn"></span>
+                                    </div>
+                                    <span class="win-title">💻 Visual Studio Code</span>
+                                </div>
+                                <div class="win-content vscode-theme">
+                                    <div class="code-editor">
+                                        <div class="editor-header">hello_world.js</div>
+                                        <textarea id="sim-text-editor" readonly placeholder="Open keyboard on phone and start typing..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- macOS HUD Overlay (Volume/Brightness) -->
+                            <div id="sim-hud-overlay" class="hidden">
+                                <div class="hud-icon" id="sim-hud-icon">🔊</div>
+                                <div class="hud-bar-wrapper">
+                                    <div class="hud-bar-fill" id="sim-hud-fill" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- macOS Dock -->
+                        <div class="sim-dock">
+                            <div class="dock-item" data-app="win-safari" title="Safari">🌐</div>
+                            <div class="dock-item" data-app="win-spotify" title="Spotify">🎵</div>
+                            <div class="dock-item" data-app="win-vscode" title="VS Code">💻</div>
+                        </div>
                     </div>
-                </section>
+                </div>
             </div>
             
             <footer class="desktop-footer">

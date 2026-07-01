@@ -6,6 +6,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     
+    // Setup BroadcastChannel for client-to-client offline relay (0 latency, 0 rate limits!)
+    const localChannel = new BroadcastChannel('macdeck-relay');
+
     // ----------------------------------------------------------------------
     // 1. DEVICE TYPE & LAYOUT DETECTION
     // ----------------------------------------------------------------------
@@ -252,6 +255,18 @@ document.addEventListener('DOMContentLoaded', () => {
             mobileLink = controllerUrl;
             mobileUrlCode.textContent = controllerUrl;
 
+            // Button to open Virtual Controller in a clean popup window
+            const openControllerBtn = document.getElementById('open-virtual-controller-btn');
+            if (openControllerBtn) {
+                openControllerBtn.addEventListener('click', () => {
+                    const width = 850;
+                    const height = 550;
+                    const left = (window.screen.width - width) / 2;
+                    const top = (window.screen.height - height) / 2;
+                    window.open(window.location.origin + window.location.pathname + '?session=' + currentSession + '&role=controller', 'MacDeckController', `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=no`);
+                });
+            }
+
             // Generate QR Code via free public API
             if (qrContainer) {
                 const qrImg = document.createElement('img');
@@ -366,127 +381,136 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Otherwise, execute on simulated desktop...
-                    if (payload.type === 'mouse_move') {
-                        demoCursorPos.x += payload.dx * 0.5;
-                        demoCursorPos.y += payload.dy * 0.5;
-
-                        // Bounds checking
-                        demoCursorPos.x = Math.max(0, Math.min(demoCursorPos.x, desktopArea.offsetWidth));
-                        demoCursorPos.y = Math.max(24, Math.min(demoCursorPos.y, desktopArea.offsetHeight));
-
-                        // Render cursor
-                        if (virtualCursor) {
-                            virtualCursor.style.left = demoCursorPos.x + 'px';
-                            virtualCursor.style.top = demoCursorPos.y + 'px';
-                        }
-
-                        // Drag window
-                        if (draggedWindow) {
-                            let newLeft = demoCursorPos.x - dragOffset.x;
-                            let newTop = demoCursorPos.y - dragOffset.y;
-                            draggedWindow.style.left = newLeft + 'px';
-                            draggedWindow.style.top = newTop + 'px';
-                        }
-                    } 
-                    else if (payload.type === 'mouse_click') {
-                        const areaRect = desktopArea.getBoundingClientRect();
-                        const clientX = areaRect.left + demoCursorPos.x;
-                        const clientY = areaRect.top + demoCursorPos.y;
-
-                        if (payload.action === 'press') {
-                            const el = document.elementFromPoint(clientX, clientY);
-                            if (el) {
-                                const dockItem = el.closest('.dock-item');
-                                if (dockItem) {
-                                    toggleWindow(dockItem.getAttribute('data-app'));
-                                } else {
-                                    el.click();
-                                    const win = el.closest('.sim-window');
-                                    if (win) focusWindow(win);
-                                    const close = el.closest('.win-close-btn');
-                                    if (close) {
-                                        const wToClose = el.closest('.sim-window');
-                                        if (wToClose) wToClose.classList.add('hidden');
-                                    }
-                                }
-                            }
-                        } 
-                        else if (payload.action === 'down') {
-                            const el = document.elementFromPoint(clientX, clientY);
-                            if (el) {
-                                const titlebar = el.closest('.win-titlebar');
-                                if (titlebar) {
-                                    draggedWindow = el.closest('.sim-window');
-                                    focusWindow(draggedWindow);
-                                    const winRect = draggedWindow.getBoundingClientRect();
-                                    dragOffset.x = demoCursorPos.x - (winRect.left - areaRect.left);
-                                    dragOffset.y = demoCursorPos.y - (winRect.top - areaRect.top);
-                                }
-                            }
-                        } 
-                        else if (payload.action === 'up') {
-                            draggedWindow = null;
-                        }
-                    }
-                    else if (payload.type === 'mouse_scroll') {
-                        // Scroll currently active window if scrollable
-                        const activeWin = document.querySelector('.sim-window.active');
-                        if (activeWin) {
-                            const content = activeWin.querySelector('.win-content');
-                            if (content) {
-                                content.scrollTop += payload.dy * 1.5;
-                            }
-                        }
-                    }
-                    else if (payload.type === 'open_app') {
-                        const appPath = payload.name.toLowerCase();
-                        if (appPath.includes('spotify')) {
-                            toggleWindow('win-spotify');
-                        } else if (appPath.includes('safari') || appPath.includes('chrome')) {
-                            toggleWindow('win-safari');
-                        } else if (appPath.includes('code') || appPath.includes('vscode')) {
-                            toggleWindow('win-vscode');
-                        }
-                    }
-                    else if (payload.type === 'keyboard_type') {
-                        if (simTextEditor) {
-                            simTextEditor.value += payload.text;
-                        }
-                    }
-                    else if (payload.type === 'keyboard_key') {
-                        if (simTextEditor) {
-                            const keyCode = payload.code;
-                            if (keyCode === 127 || payload.key === 'Backspace') { // backspace
-                                simTextEditor.value = simTextEditor.value.slice(0, -1);
-                            } else if (keyCode === 36 || payload.key === 'Enter') { // enter
-                                simTextEditor.value += '\n';
-                            }
-                        }
-                    }
-                    else if (payload.type === 'media_volume' || payload.type === 'media_brightness') {
-                        // Show HUD overlay
-                        const hud = document.getElementById('sim-hud-overlay');
-                        const hudIcon = document.getElementById('sim-hud-icon');
-                        const hudFill = document.getElementById('sim-hud-fill');
-                        
-                        if (hud) {
-                            hudIcon.textContent = payload.type === 'media_volume' ? '🔊' : '🔆';
-                            let percentage = payload.value !== undefined ? payload.value : 50;
-                            hudFill.style.width = `${percentage}%`;
-                            
-                            hud.classList.remove('hidden');
-                            clearTimeout(hud.timer);
-                            hud.timer = setTimeout(() => {
-                                hud.classList.add('hidden');
-                            }, 1500);
-                        }
-                    }
-                    
+                    handleSimulatedDesktopEvent(payload);
                 } catch(err) {
                     console.error("Failed to process ntfy event:", err);
                 }
             };
 
+            // Listen to local BroadcastChannel messages for offline zero-latency demo control
+            localChannel.onmessage = (event) => {
+                const payload = event.data;
+                handleSimulatedDesktopEvent(payload);
+            };
+
+            // Centralized simulated desktop payload executor
+            function handleSimulatedDesktopEvent(payload) {
+                if (payload.type === 'mouse_move') {
+                    demoCursorPos.x += payload.dx * 0.5;
+                    demoCursorPos.y += payload.dy * 0.5;
+
+                    // Bounds checking
+                    demoCursorPos.x = Math.max(0, Math.min(demoCursorPos.x, desktopArea.offsetWidth));
+                    demoCursorPos.y = Math.max(24, Math.min(demoCursorPos.y, desktopArea.offsetHeight));
+
+                    // Render cursor
+                    if (virtualCursor) {
+                        virtualCursor.style.left = demoCursorPos.x + 'px';
+                        virtualCursor.style.top = demoCursorPos.y + 'px';
+                    }
+
+                    // Drag window
+                    if (draggedWindow) {
+                        let newLeft = demoCursorPos.x - dragOffset.x;
+                        let newTop = demoCursorPos.y - dragOffset.y;
+                        draggedWindow.style.left = newLeft + 'px';
+                        draggedWindow.style.top = newTop + 'px';
+                    }
+                } 
+                else if (payload.type === 'mouse_click') {
+                    const areaRect = desktopArea.getBoundingClientRect();
+                    const clientX = areaRect.left + demoCursorPos.x;
+                    const clientY = areaRect.top + demoCursorPos.y;
+
+                    if (payload.action === 'press') {
+                        const el = document.elementFromPoint(clientX, clientY);
+                        if (el) {
+                            const dockItem = el.closest('.dock-item');
+                            if (dockItem) {
+                                toggleWindow(dockItem.getAttribute('data-app'));
+                            } else {
+                                el.click();
+                                const win = el.closest('.sim-window');
+                                if (win) focusWindow(win);
+                                const close = el.closest('.win-close-btn');
+                                if (close) {
+                                    const wToClose = el.closest('.sim-window');
+                                    if (wToClose) wToClose.classList.add('hidden');
+                                }
+                            }
+                        }
+                    } 
+                    else if (payload.action === 'down') {
+                        const el = document.elementFromPoint(clientX, clientY);
+                        if (el) {
+                            const titlebar = el.closest('.win-titlebar');
+                            if (titlebar) {
+                                draggedWindow = el.closest('.sim-window');
+                                focusWindow(draggedWindow);
+                                const winRect = draggedWindow.getBoundingClientRect();
+                                dragOffset.x = demoCursorPos.x - (winRect.left - areaRect.left);
+                                dragOffset.y = demoCursorPos.y - (winRect.top - areaRect.top);
+                            }
+                        }
+                    } 
+                    else if (payload.action === 'up') {
+                        draggedWindow = null;
+                    }
+                }
+                else if (payload.type === 'mouse_scroll') {
+                    // Scroll currently active window if scrollable
+                    const activeWin = document.querySelector('.sim-window.active');
+                    if (activeWin) {
+                        const content = activeWin.querySelector('.win-content');
+                        if (content) {
+                            content.scrollTop += payload.dy * 1.5;
+                        }
+                    }
+                }
+                else if (payload.type === 'open_app') {
+                    const appPath = payload.name.toLowerCase();
+                    if (appPath.includes('spotify')) {
+                        toggleWindow('win-spotify');
+                    } else if (appPath.includes('safari') || appPath.includes('chrome')) {
+                        toggleWindow('win-safari');
+                    } else if (appPath.includes('code') || appPath.includes('vscode')) {
+                        toggleWindow('win-vscode');
+                    }
+                }
+                else if (payload.type === 'keyboard_type') {
+                    if (simTextEditor) {
+                        simTextEditor.value += payload.text;
+                    }
+                }
+                else if (payload.type === 'keyboard_key') {
+                    if (simTextEditor) {
+                        const keyCode = payload.code;
+                        if (keyCode === 127 || payload.key === 'Backspace') { // backspace
+                            simTextEditor.value = simTextEditor.value.slice(0, -1);
+                        } else if (keyCode === 36 || payload.key === 'Enter') { // enter
+                            simTextEditor.value += '\n';
+                        }
+                    }
+                }
+                else if (payload.type === 'media_volume' || payload.type === 'media_brightness') {
+                    // Show HUD overlay
+                    const hud = document.getElementById('sim-hud-overlay');
+                    const hudIcon = document.getElementById('sim-hud-icon');
+                    const hudFill = document.getElementById('sim-hud-fill');
+                    
+                    if (hud) {
+                        hudIcon.textContent = payload.type === 'media_volume' ? '🔊' : '🔆';
+                        let percentage = payload.value !== undefined ? payload.value : 50;
+                        hudFill.style.width = `${percentage}%`;
+                        
+                        hud.classList.remove('hidden');
+                        clearTimeout(hud.timer);
+                        hud.timer = setTimeout(() => {
+                            hud.classList.add('hidden');
+                        }, 1500);
+                    }
+                }
+            }
         } else {
             // =================================================================
             // LOCAL SERVER PRODUCTION MODE RUNTIME
@@ -753,6 +777,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
  
         function sendWS(payload) {
+            // Send instantly to local channel for same-origin tabs (popup virtual controller)
+            localChannel.postMessage(payload);
+
             if (isDemoMode) {
                 if (payload.type === 'mouse_move') {
                     throttleMouseMove(payload);

@@ -106,494 +106,200 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. DESKTOP VIEW CODE
     // ----------------------------------------------------------------------
     function initDesktopDashboard() {
+        // -----------------------------------------------------------------------
+        // PRODUCTION DESKTOP DASHBOARD
+        // The desktop view shows live Mac status + controller QR/link.
+        // Stats are pulled from the Mac via ntfy.sh SSE cloud relay.
+        // No simulation, no demo mode — this is the real deal.
+        // -----------------------------------------------------------------------
+
+        // The Mac's hardcoded ntfy.sh channel topic.
+        // This is derived from your Mac's hostname and is set in server.js at startup.
+        const MAC_NTFY_TOPIC = 'macdeck-bhupals-macbook-pro';
+
         const copyBtn = document.getElementById('copy-url-btn');
         const mobileUrlCode = document.getElementById('mobile-url');
-        const permStatusBox = document.getElementById('perm-status-box');
-        const permDot = document.getElementById('perm-dot');
-        const permText = document.getElementById('perm-text');
-        const permInst = document.getElementById('perm-inst');
-        const reqPermBtn = document.getElementById('request-perm-btn');
-        
-        // Host stats elements
         const hostActiveApp = document.getElementById('host-active-app');
         const hostCpu = document.getElementById('host-cpu');
         const hostMem = document.getElementById('host-mem');
         const hostBattery = document.getElementById('host-battery');
-
         const qrContainer = document.getElementById('qr-container');
-        let mobileLink = '';
+        const macStatusDot = document.getElementById('mac-status-dot');
+        const macStatusText = document.getElementById('mac-status-text');
+        const statusBadge = document.getElementById('desktop-connection-status');
+        const statsOfflineMsg = document.getElementById('stats-offline-msg');
 
-        let localHelperWs = null;
-        let isLocalHelperConnected = false;
+        // Build the controller URL — same page, with ?role=controller
+        // Anyone who opens this link gets the mobile controller UI directly
+        const controllerUrl = window.location.origin + window.location.pathname + '?role=controller';
+        let mobileLink = controllerUrl;
 
-        function connectLocalHelper() {
-            const tempWs = new WebSocket('ws://localhost:3000');
-            tempWs.onopen = () => {
-                localHelperWs = tempWs;
-                isLocalHelperConnected = true;
-                
-                // Fetch local server info to redirect phone directly to local network IP
-                fetch('http://localhost:3000/api/server-info')
-                    .then(res => res.json())
-                    .then(data => {
-                        const localUrl = data.url;
-                        mobileUrlCode.textContent = localUrl;
-                        mobileLink = localUrl;
-                        
-                        // Re-generate QR Code pointing directly to the local network IP!
-                        if (qrContainer) {
-                            const qrImg = document.createElement('img');
-                            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(localUrl)}`;
-                            qrImg.style.width = '100%';
-                            qrImg.style.height = '100%';
-                            qrContainer.innerHTML = '';
-                            qrContainer.appendChild(qrImg);
+        // Set the URL display
+        if (mobileUrlCode) mobileUrlCode.textContent = controllerUrl;
+
+        // Generate QR code pointing to the controller URL
+        if (qrContainer) {
+            const qrImg = document.createElement('img');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(controllerUrl)}&bgcolor=ffffff&color=000000&margin=4`;
+            qrImg.style.width = '100%';
+            qrImg.style.height = '100%';
+            qrImg.alt = 'Controller QR Code';
+            qrContainer.innerHTML = '';
+            qrContainer.appendChild(qrImg);
+        }
+
+        // "Open Controller on This Computer" button
+        const openControllerDesktopBtn = document.getElementById('open-controller-desktop-btn');
+        if (openControllerDesktopBtn) {
+            openControllerDesktopBtn.addEventListener('click', () => {
+                const w = 870, h = 560;
+                const left = Math.round((screen.width - w) / 2);
+                const top  = Math.round((screen.height - h) / 2);
+                window.open(controllerUrl, 'MacDeckController',
+                    `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=no`);
+            });
+        }
+
+        // Copy button
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(mobileLink).then(() => {
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+                });
+            });
+        }
+
+        // -----------------------------------------------------------------------
+        // Live Stats via ntfy.sh SSE
+        // The Mac's server.js pushes stats every 5 seconds to ntfy.sh/<topic>-stats
+        // We listen to that SSE stream here to show real-time Mac status
+        // -----------------------------------------------------------------------
+        let macOnline = false;
+        let statsTimeoutHandle = null;
+
+        function setMacStatus(online) {
+            macOnline = online;
+            if (macStatusDot) {
+                macStatusDot.style.background = online ? '#10b981' : '#6b7280';
+                macStatusDot.style.boxShadow = online ? '0 0 8px rgba(16,185,129,0.8)' : 'none';
+            }
+            if (macStatusText) macStatusText.textContent = online ? 'Mac Online' : 'Mac Offline';
+            if (statusBadge) {
+                statusBadge.className = online ? 'badge status-connected' : 'badge';
+                statusBadge.style.background = online ? '' : 'rgba(107,114,128,0.12)';
+                statusBadge.style.color = online ? '' : '#9ca3af';
+                statusBadge.style.borderColor = online ? '' : 'rgba(107,114,128,0.25)';
+            }
+            if (statsOfflineMsg) statsOfflineMsg.style.display = online ? 'none' : 'block';
+        }
+
+        function applyStats(stats) {
+            if (!stats) return;
+            setMacStatus(true);
+
+            // Reset the "went offline" timer — if we don't get stats for 15s, mark offline
+            clearTimeout(statsTimeoutHandle);
+            statsTimeoutHandle = setTimeout(() => setMacStatus(false), 15000);
+
+            if (hostActiveApp) hostActiveApp.textContent = stats.activeApp || '—';
+            if (hostCpu) hostCpu.textContent = stats.cpu !== undefined ? `${stats.cpu}%` : '—';
+            if (hostMem) hostMem.textContent = stats.memory !== undefined ? `${stats.memory}%` : '—';
+            if (hostBattery) {
+                const bat = stats.battery;
+                if (bat) {
+                    let batStr = `${bat.percent}%`;
+                    if (bat.isCharging) batStr = '⚡ ' + batStr;
+                    hostBattery.textContent = batStr;
+                } else {
+                    hostBattery.textContent = '—';
+                }
+            }
+        }
+
+        // Connect to ntfy.sh SSE for live stats
+        function connectStatsSSE() {
+            const statsUrl = `https://ntfy.sh/${MAC_NTFY_TOPIC}-stats/sse`;
+            const statsSSE = new EventSource(statsUrl);
+
+            statsSSE.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.event === 'message') {
+                        const payload = JSON.parse(data.message);
+                        if (payload.type === 'stats_update' && payload.stats) {
+                            applyStats(payload.stats);
                         }
-                    })
-                    .catch(err => console.error("Error fetching local server info:", err));
-
-                // Update badge and hide simulation
-                const connectionStatus = document.getElementById('desktop-connection-status');
-                if (connectionStatus) {
-                    connectionStatus.innerHTML = '<span class="dot pulse-green"></span> Controlling Mac';
-                    connectionStatus.className = "badge status-connected";
-                    connectionStatus.style.background = "";
-                    connectionStatus.style.color = "";
-                    connectionStatus.style.borderColor = "";
-                }
-                
-                // Show actual Mac controller indicator overlay on desktop screen panel
-                const simDesktop = document.getElementById('simulated-mac-desktop');
-                if (simDesktop) {
-                    let overlay = document.getElementById('mac-control-overlay');
-                    if (!overlay) {
-                        overlay = document.createElement('div');
-                        overlay.id = 'mac-control-overlay';
-                        overlay.style.position = 'absolute';
-                        overlay.style.top = '0'; overlay.style.left = '0';
-                        overlay.style.width = '100%'; overlay.style.height = '100%';
-                        overlay.style.background = 'rgba(15,23,42,0.95)';
-                        overlay.style.zIndex = '500';
-                        overlay.style.display = 'flex';
-                        overlay.style.flexDirection = 'column';
-                        overlay.style.alignItems = 'center';
-                        overlay.style.justifyContent = 'center';
-                        overlay.style.color = '#10b981';
-                        overlay.innerHTML = `
-                            <span style="font-size: 3rem; margin-bottom: 12px;">🖥️</span>
-                            <h2 style="font-weight: 700; font-size: 1.2rem; color: white;">Controlling Actual Mac</h2>
-                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 6px; text-align: center; max-width: 280px; line-height: 1.4;">
-                                Your phone is connected! Any movements or typing are injected directly into your macOS system.
-                            </p>
-                        `;
-                        simDesktop.appendChild(overlay);
                     }
+                } catch (e) {
+                    // ignore parse errors
                 }
             };
 
-            tempWs.onclose = () => {
-                localHelperWs = null;
-                isLocalHelperConnected = false;
-                
-                // Restore Netlify QR Code
-                const currentSession = session || Math.random().toString(36).substr(2, 8);
-                const controllerUrl = window.location.origin + window.location.pathname + '?session=' + currentSession + '&role=controller';
-                mobileLink = controllerUrl;
-                mobileUrlCode.textContent = controllerUrl;
-                if (qrContainer) {
-                    const qrImg = document.createElement('img');
-                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(controllerUrl)}`;
-                    qrImg.style.width = '100%';
-                    qrImg.style.height = '100%';
-                    qrContainer.innerHTML = '';
-                    qrContainer.appendChild(qrImg);
-                }
-
-                // Restore demo mode badge and remove overlay
-                const connectionStatus = document.getElementById('desktop-connection-status');
-                if (connectionStatus && isDemoMode) {
-                    connectionStatus.innerHTML = '<span class="dot" style="background:#3b82f6;box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></span> Demo Mode';
-                    connectionStatus.className = "badge";
-                    connectionStatus.style.background = "rgba(59, 130, 246, 0.12)";
-                    connectionStatus.style.color = "#60a5fa";
-                    connectionStatus.style.borderColor = "rgba(59, 130, 246, 0.25)";
-                }
-                const overlay = document.getElementById('mac-control-overlay');
-                if (overlay) overlay.remove();
-                
-                // Try to reconnect to local helper periodically
-                setTimeout(connectLocalHelper, 5000);
-            };
-
-            tempWs.onerror = () => {
-                tempWs.close();
+            statsSSE.onerror = () => {
+                statsSSE.close();
+                // Reconnect after 5s
+                setTimeout(connectStatsSSE, 5000);
             };
         }
 
-        if (isDemoMode) {
-            connectLocalHelper();
+        // If running on localhost, also poll local API for richer local stats
+        const isLocalServer = (window.location.hostname === 'localhost' ||
+                               window.location.hostname === '127.0.0.1' ||
+                               window.location.hostname.startsWith('192.168.'));
 
-            // =================================================================
-            // INTERACTIVE WEB DEMO MODE RUNTIME
-            // =================================================================
-            const connectionStatus = document.getElementById('desktop-connection-status');
-            if (connectionStatus) {
-                connectionStatus.innerHTML = '<span class="dot" style="background:#3b82f6;box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></span> Demo Mode';
-                connectionStatus.className = "badge";
-                connectionStatus.style.background = "rgba(59, 130, 246, 0.12)";
-                connectionStatus.style.color = "#60a5fa";
-                connectionStatus.style.borderColor = "rgba(59, 130, 246, 0.25)";
-            }
-
-            // Hide/Show correct panels
-            document.querySelectorAll('.local-only').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.demo-only').forEach(el => el.classList.remove('hidden'));
-
-            // Generate random session ID if not set
-            const currentSession = session || Math.random().toString(36).substr(2, 8);
-            const controllerUrl = window.location.origin + window.location.pathname + '?session=' + currentSession + '&role=controller';
-            mobileLink = controllerUrl;
-            mobileUrlCode.textContent = controllerUrl;
-
-            // Button to open Virtual Controller in a clean popup window
-            const openControllerBtn = document.getElementById('open-virtual-controller-btn');
-            if (openControllerBtn) {
-                openControllerBtn.addEventListener('click', () => {
-                    const width = 850;
-                    const height = 550;
-                    const left = (window.screen.width - width) / 2;
-                    const top = (window.screen.height - height) / 2;
-                    window.open(window.location.origin + window.location.pathname + '?session=' + currentSession + '&role=controller', 'MacDeckController', `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=no`);
-                });
-            }
-
-            // Generate QR Code via free public API
-            if (qrContainer) {
-                const qrImg = document.createElement('img');
-                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(controllerUrl)}`;
-                qrImg.style.width = '100%';
-                qrImg.style.height = '100%';
-                qrContainer.innerHTML = '';
-                qrContainer.appendChild(qrImg);
-            }
-
-            // Simulated macOS Desktop logic
-            const desktopArea = document.querySelector('.sim-desktop-area');
-            const virtualCursor = document.getElementById('sim-mouse-cursor');
-            let demoCursorPos = { x: 200, y: 150 };
-
-            // Clock updater
-            const simClock = document.getElementById('sim-clock');
-            function updateSimClock() {
-                const now = new Date();
-                let hours = now.getHours();
-                let minutes = now.getMinutes();
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                minutes = minutes < 10 ? '0' + minutes : minutes;
-                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                simClock.textContent = `${days[now.getDay()]} ${hours}:${minutes} ${ampm}`;
-            }
-            setInterval(updateSimClock, 5000);
-            updateSimClock();
-
-            // Window controls
-            const windows = document.querySelectorAll('.sim-window');
-            const dockItems = document.querySelectorAll('.dock-item');
-            let zIndexCounter = 30;
-
-            function focusWindow(win) {
-                windows.forEach(w => w.classList.remove('active'));
-                win.classList.add('active');
-                zIndexCounter++;
-                win.style.zIndex = zIndexCounter;
-            }
-
-            function toggleWindow(appId) {
-                const win = document.getElementById(appId);
-                if (!win) return;
-                if (win.classList.contains('hidden')) {
-                    win.classList.remove('hidden');
-                    // Center it
-                    const w = win.offsetWidth || 320;
-                    const h = win.offsetHeight || 220;
-                    win.style.left = ((desktopArea.offsetWidth - w) / 2) + 'px';
-                    win.style.top = ((desktopArea.offsetHeight - h) / 2) + 'px';
-                    focusWindow(win);
-                } else {
-                    win.classList.add('hidden');
-                }
-            }
-
-            // Bind manual clicks to simulated elements (for testing directly on Mac)
-            dockItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const appId = item.getAttribute('data-app');
-                    toggleWindow(appId);
-                });
-            });
-
-            document.querySelectorAll('.win-close-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const win = btn.closest('.sim-window');
-                    if (win) win.classList.add('hidden');
-                });
-            });
-
-            windows.forEach(win => {
-                win.addEventListener('mousedown', () => focusWindow(win));
-            });
-
-            // Simulated Dragging variables
-            let draggedWindow = null;
-            let dragOffset = { x: 0, y: 0 };
-
-            // Connect to ntfy.sh EventSource for phone signals
-            const sse = new EventSource(`https://ntfy.sh/macdeck-${currentSession}/sse`);
-            console.log(`Subscribed to ntfy.sh topic: macdeck-${currentSession}`);
-
-            // Spotify play toggle simulation
-            const simPlayBtn = document.getElementById('sim-play-btn');
-            const simSpotifyArt = document.getElementById('sim-spotify-art');
-            let isSpotifyPlaying = false;
-            if (simPlayBtn) {
-                simPlayBtn.addEventListener('click', () => {
-                    isSpotifyPlaying = !isSpotifyPlaying;
-                    simPlayBtn.textContent = isSpotifyPlaying ? '⏸️' : '▶️';
-                    simSpotifyArt.textContent = isSpotifyPlaying ? '🔊' : '🎵';
-                });
-            }
-
-            // Keyboard text editor
-            const simTextEditor = document.getElementById('sim-text-editor');
-
-            sse.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    // ntfy wraps messages in event data
-                    const payload = JSON.parse(data.message);
-                    
-                    // IF local helper is active, forward directly to the actual Mac!
-                    if (isLocalHelperConnected && localHelperWs) {
-                        localHelperWs.send(JSON.stringify(payload));
-                        return;
-                    }
-
-                    // Otherwise, execute on simulated desktop...
-                    handleSimulatedDesktopEvent(payload);
-                } catch(err) {
-                    console.error("Failed to process ntfy event:", err);
-                }
-            };
-
-            // Listen to local BroadcastChannel messages for offline zero-latency demo control
-            localChannel.onmessage = (event) => {
-                const payload = event.data;
-                handleSimulatedDesktopEvent(payload);
-            };
-
-            // Centralized simulated desktop payload executor
-            function handleSimulatedDesktopEvent(payload) {
-                if (payload.type === 'mouse_move') {
-                    demoCursorPos.x += payload.dx * 0.5;
-                    demoCursorPos.y += payload.dy * 0.5;
-
-                    // Bounds checking
-                    demoCursorPos.x = Math.max(0, Math.min(demoCursorPos.x, desktopArea.offsetWidth));
-                    demoCursorPos.y = Math.max(24, Math.min(demoCursorPos.y, desktopArea.offsetHeight));
-
-                    // Render cursor
-                    if (virtualCursor) {
-                        virtualCursor.style.left = demoCursorPos.x + 'px';
-                        virtualCursor.style.top = demoCursorPos.y + 'px';
-                    }
-
-                    // Drag window
-                    if (draggedWindow) {
-                        let newLeft = demoCursorPos.x - dragOffset.x;
-                        let newTop = demoCursorPos.y - dragOffset.y;
-                        draggedWindow.style.left = newLeft + 'px';
-                        draggedWindow.style.top = newTop + 'px';
-                    }
-                } 
-                else if (payload.type === 'mouse_click') {
-                    const areaRect = desktopArea.getBoundingClientRect();
-                    const clientX = areaRect.left + demoCursorPos.x;
-                    const clientY = areaRect.top + demoCursorPos.y;
-
-                    if (payload.action === 'press') {
-                        const el = document.elementFromPoint(clientX, clientY);
-                        if (el) {
-                            const dockItem = el.closest('.dock-item');
-                            if (dockItem) {
-                                toggleWindow(dockItem.getAttribute('data-app'));
-                            } else {
-                                el.click();
-                                const win = el.closest('.sim-window');
-                                if (win) focusWindow(win);
-                                const close = el.closest('.win-close-btn');
-                                if (close) {
-                                    const wToClose = el.closest('.sim-window');
-                                    if (wToClose) wToClose.classList.add('hidden');
-                                }
-                            }
-                        }
-                    } 
-                    else if (payload.action === 'down') {
-                        const el = document.elementFromPoint(clientX, clientY);
-                        if (el) {
-                            const titlebar = el.closest('.win-titlebar');
-                            if (titlebar) {
-                                draggedWindow = el.closest('.sim-window');
-                                focusWindow(draggedWindow);
-                                const winRect = draggedWindow.getBoundingClientRect();
-                                dragOffset.x = demoCursorPos.x - (winRect.left - areaRect.left);
-                                dragOffset.y = demoCursorPos.y - (winRect.top - areaRect.top);
-                            }
-                        }
-                    } 
-                    else if (payload.action === 'up') {
-                        draggedWindow = null;
-                    }
-                }
-                else if (payload.type === 'mouse_scroll') {
-                    // Scroll currently active window if scrollable
-                    const activeWin = document.querySelector('.sim-window.active');
-                    if (activeWin) {
-                        const content = activeWin.querySelector('.win-content');
-                        if (content) {
-                            content.scrollTop += payload.dy * 1.5;
-                        }
-                    }
-                }
-                else if (payload.type === 'open_app') {
-                    const appPath = payload.name.toLowerCase();
-                    if (appPath.includes('spotify')) {
-                        toggleWindow('win-spotify');
-                    } else if (appPath.includes('safari') || appPath.includes('chrome')) {
-                        toggleWindow('win-safari');
-                    } else if (appPath.includes('code') || appPath.includes('vscode')) {
-                        toggleWindow('win-vscode');
-                    }
-                }
-                else if (payload.type === 'keyboard_type') {
-                    if (simTextEditor) {
-                        simTextEditor.value += payload.text;
-                    }
-                }
-                else if (payload.type === 'keyboard_key') {
-                    if (simTextEditor) {
-                        const keyCode = payload.code;
-                        if (keyCode === 127 || payload.key === 'Backspace') { // backspace
-                            simTextEditor.value = simTextEditor.value.slice(0, -1);
-                        } else if (keyCode === 36 || payload.key === 'Enter') { // enter
-                            simTextEditor.value += '\n';
-                        }
-                    }
-                }
-                else if (payload.type === 'media_volume' || payload.type === 'media_brightness') {
-                    // Show HUD overlay
-                    const hud = document.getElementById('sim-hud-overlay');
-                    const hudIcon = document.getElementById('sim-hud-icon');
-                    const hudFill = document.getElementById('sim-hud-fill');
-                    
-                    if (hud) {
-                        hudIcon.textContent = payload.type === 'media_volume' ? '🔊' : '🔆';
-                        let percentage = payload.value !== undefined ? payload.value : 50;
-                        hudFill.style.width = `${percentage}%`;
-                        
-                        hud.classList.remove('hidden');
-                        clearTimeout(hud.timer);
-                        hud.timer = setTimeout(() => {
-                            hud.classList.add('hidden');
-                        }, 1500);
-                    }
-                }
-            }
-        } else {
-            // =================================================================
-            // LOCAL SERVER PRODUCTION MODE RUNTIME
-            // =================================================================
-            // Set up host connection info dynamically from server config
+        if (isLocalServer) {
+            // Local mode: use direct API + WebSocket, overriding QR with local IP
             fetch('/api/server-info')
                 .then(res => res.json())
                 .then(data => {
-                    mobileLink = data.url;
-                    mobileUrlCode.textContent = data.url;
-                    
+                    const localUrl = data.url;
+                    if (mobileUrlCode) mobileUrlCode.textContent = localUrl;
+                    mobileLink = localUrl;
+
                     if (data.qrCode && qrContainer) {
                         qrContainer.innerHTML = data.qrCode;
                         const svg = qrContainer.querySelector('svg');
-                        if (svg) {
-                            svg.style.width = '100%';
-                            svg.style.height = '100%';
-                            svg.style.display = 'block';
-                        }
-                    } else {
-                        document.getElementById('qr-fallback').classList.remove('hidden');
+                        if (svg) { svg.style.width = '100%'; svg.style.height = '100%'; }
                     }
                 })
-                .catch(err => {
-                    console.error("Failed to load server info:", err);
-                    const hostUrl = `${window.location.protocol}//${window.location.host}`;
-                    mobileUrlCode.textContent = hostUrl;
-                    mobileLink = hostUrl;
-                    document.getElementById('qr-fallback').classList.remove('hidden');
-                });
+                .catch(() => {});
 
-            // Fetch metrics and permissions
-            function checkPermissionsAndStats() {
+            function pollLocalStats() {
                 fetch('/api/system-stats')
                     .then(res => res.json())
                     .then(data => {
-                        // Update permission card
-                        if (data.accessibilityTrusted) {
-                            permDot.className = 'status-dot active';
-                            permText.textContent = 'Accessibility Access Granted';
-                            permInst.classList.add('hidden');
-                        } else {
-                            permDot.className = 'status-dot inactive';
-                            permText.textContent = 'Accessibility Access Denied';
-                            permInst.classList.remove('hidden');
-                        }
-
-                        // Update system stats
-                        hostActiveApp.textContent = data.activeApp || "Unknown";
-                        hostCpu.textContent = `${data.cpu}%`;
-                        hostMem.textContent = `${data.memory}%`;
-                        
-                        let batStr = `${data.battery.percent}%`;
-                        if (data.battery.isCharging) batStr += ' (Charging)';
-                        hostBattery.textContent = batStr;
+                        applyStats({
+                            activeApp: data.activeApp,
+                            cpu: data.cpu,
+                            memory: data.memory,
+                            battery: data.battery
+                        });
                     })
-                    .catch(err => console.error("Error connecting to server stats API:", err));
+                    .catch(() => setMacStatus(false));
             }
-
-            reqPermBtn.addEventListener('click', () => {
-                fetch('/api/request-accessibility', { method: 'POST' })
-                    .then(() => checkPermissionsAndStats());
-            });
-
-            // Run check on startup and poll
-            checkPermissionsAndStats();
-            setInterval(checkPermissionsAndStats, 2000);
+            pollLocalStats();
+            setInterval(pollLocalStats, 3000);
         }
 
-        // Copy functionality
-        copyBtn.addEventListener('click', () => {
-            const urlToCopy = mobileLink || mobileUrlCode.textContent;
-            navigator.clipboard.writeText(urlToCopy).then(() => {
-                copyBtn.textContent = 'Copied!';
-                setTimeout(() => copyBtn.textContent = 'Copy', 2000);
-            });
-        });
+        // Always connect to ntfy SSE for cloud relay stats (works both locally and on Netlify)
+        connectStatsSSE();
+
+        // Start with "Checking..." which resolves once stats arrive or times out
+        setTimeout(() => {
+            if (!macOnline) setMacStatus(false);
+        }, 8000);
     }
 
     // ----------------------------------------------------------------------
     // 4. MOBILE VIEW CODE
     // ----------------------------------------------------------------------
     function initMobileController() {
+        // Determine if we're running locally or on Netlify/cloud
+        const isLocalServer = (window.location.hostname === 'localhost' ||
+                               window.location.hostname === '127.0.0.1' ||
+                               window.location.hostname.startsWith('192.168.'));
+
         let ws = null;
         let activeModifiers = new Set();
         let trackpadSensitivity = parseFloat(localStorage.getItem('trackpadSensitivity') || '1.2');
@@ -695,13 +401,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let aggregatedDY = 0;
         let throttleTimer = null;
 
+        // Hardcoded Mac ntfy.sh topic — must match server.js hostname-derived topic
+        const MAC_NTFY_TOPIC = 'macdeck-bhupals-macbook-pro';
+
         function throttleMouseMove(payload) {
             aggregatedDX += payload.dx;
             aggregatedDY += payload.dy;
             
             if (!throttleTimer) {
                 throttleTimer = setTimeout(() => {
-                    postDemoEvent({
+                    postCloudEvent({
                         type: 'mouse_move',
                         dx: aggregatedDX,
                         dy: aggregatedDY
@@ -713,19 +422,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        function postDemoEvent(payload) {
-            const currentSession = session || 'demo';
-            fetch(`https://ntfy.sh/macdeck-${currentSession}`, {
+        function postCloudEvent(payload) {
+            fetch(`https://ntfy.sh/${MAC_NTFY_TOPIC}`, {
                 method: 'POST',
                 body: JSON.stringify(payload)
-            }).catch(e => console.error("Error posting demo event: ", e));
+            }).catch(e => console.error("Error posting cloud event: ", e));
         }
 
         function connectWebSocket() {
-            if (isDemoMode) {
-                mobileWsStatus.textContent = "Demo Session Active";
+            if (!isLocalServer) {
+                // Cloud/Netlify mode — no local WebSocket needed, using ntfy.sh relay
+                mobileWsStatus.textContent = "Cloud Relay Active";
                 mobileWsStatus.className = "status-val text-green";
-                mobilePermStatus.textContent = "Sandbox OK";
+                mobilePermStatus.textContent = "Ready";
                 mobilePermStatus.className = "status-val text-green";
                 return; // skip local WS
             }
@@ -777,18 +486,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
  
         function sendWS(payload) {
-            // Send instantly to local channel for same-origin tabs (popup virtual controller)
+            // Always broadcast to same-origin tabs (popup controller window)
             localChannel.postMessage(payload);
 
-            if (isDemoMode) {
+            if (isLocalServer) {
+                // On local network: send via WebSocket directly to server
+                if (ws && isConnected && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify(payload));
+                }
+            } else {
+                // On Netlify/cloud: route via ntfy.sh cloud relay to the Mac
                 if (payload.type === 'mouse_move') {
                     throttleMouseMove(payload);
                 } else {
-                    postDemoEvent(payload);
-                }
-            } else {
-                if (ws && isConnected && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify(payload));
+                    postCloudEvent(payload);
                 }
             }
         }
@@ -850,11 +561,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let statsSse = null;
         function pollHostStats() {
-            if (isDemoMode) {
-                // Connect to cloud stats SSE relayer to get actual Mac metrics
+            if (!isLocalServer) {
+                // Cloud/Netlify mode — subscribe to ntfy.sh SSE for live Mac stats
                 if (!statsSse) {
-                    const currentSession = session || 'demo';
-                    statsSse = new EventSource(`https://ntfy.sh/macdeck-${currentSession}-stats/sse`);
+                    statsSse = new EventSource(`https://ntfy.sh/${MAC_NTFY_TOPIC}-stats/sse`);
                     statsSse.onmessage = (event) => {
                         try {
                             const data = JSON.parse(event.data);
@@ -862,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const payload = JSON.parse(data.message);
                                 if (payload.type === 'stats_update' && payload.stats) {
                                     const stats = payload.stats;
-                                    statusActiveApp.textContent = stats.activeApp || "Finder";
+                                    statusActiveApp.textContent = stats.activeApp || '—';
                                     statusCpu.textContent = `${stats.cpu}%`;
                                     
                                     let batStr = `${stats.battery.percent}%`;
@@ -874,14 +584,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         } catch (e) {}
                     };
+                    statsSse.onerror = () => {
+                        statsSse.close();
+                        statsSse = null;
+                        // Reconnect after 5s
+                        setTimeout(pollHostStats, 5000);
+                    };
                 }
                 return;
             }
 
+            // Local mode — poll REST API directly
             fetch('/api/system-stats')
                 .then(res => res.json())
                 .then(data => {
-                    statusActiveApp.textContent = data.activeApp || "Finder";
+                    statusActiveApp.textContent = data.activeApp || '—';
                     statusCpu.textContent = `${data.cpu}%`;
                     
                     let batStr = `${data.battery.percent}%`;
@@ -894,6 +611,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setInterval(pollHostStats, 3000);
         pollHostStats();
+
 
         // ------------------------------------------------------------------
         // library app carousel render

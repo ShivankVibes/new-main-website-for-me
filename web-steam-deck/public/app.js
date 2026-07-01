@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const forceMobile = urlParams.has('mode') && urlParams.get('mode') === 'mobile';
     const forceDesktop = urlParams.has('mode') && urlParams.get('mode') === 'desktop';
-    const session = urlParams.get('session') || null;
+    let session = urlParams.get('session') || null;
     const isController = urlParams.get('role') === 'controller' || session !== null;
     const isDemoMode = (session !== null) || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !window.location.hostname.startsWith('192.168.'));
 

@@ -103,89 +103,21 @@
   // ── Konami Code Easter Egg ───────────────────────────────────────────────────
   const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
   let konamiIdx = 0;
-  const terminal = document.getElementById('terminal-easter-egg');
 
   document.addEventListener('keydown', (e) => {
     if (e.key === KONAMI[konamiIdx]) {
       konamiIdx++;
       if (konamiIdx === KONAMI.length) {
         konamiIdx = 0;
-        showTerminal();
+        if (window.terminalUI) {
+          window.terminalUI.show();
+        }
       }
     } else {
       konamiIdx = 0;
     }
   });
 
-  function showTerminal() {
-    if (!terminal) return;
-    terminal.classList.add('visible');
-    const lines = terminal.querySelectorAll('.term-line');
-    lines.forEach(l => l.classList.remove('typed'));
-    let delay = 0;
-    lines.forEach((line, i) => {
-      setTimeout(() => line.classList.add('typed'), delay);
-      delay += line.textContent.length * 28 + 400;
-    });
-  }
-
-  document.getElementById('terminal-close')?.addEventListener('click', () => {
-    terminal?.classList.remove('visible');
-  });
-
-  // Close terminal with Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && terminal?.classList.contains('visible')) {
-      terminal.classList.remove('visible');
-    }
-  });
-
-  // ── Developer Console ASCII Art & Greeting ───────────────────────────────────
-  const asciiArt = [
-    "  ___  _  _ ___ __   __   _   _  _ _  __",
-    " / __|| || |_ _|\\ \\ / /  /_\\ | \\| | |/ /",
-    " \\__ \\| __ || |  \\ V /  / _ \\| .` | ' < ",
-    " |___/|_||_|___|  \\_/  /_/ \\_\\_|\\_|_|\\_\\",
-    "  __   _____ ___ ___ ___ ",
-    "  \\ \\ / /_ _| _ ) __/ __|",
-    "   \\ V / | || _ \\ _|\\__ \\",
-    "    \\_/ |___|___/___|___/"
-  ].join("\n");
-
-  console.log(
-    `%c${asciiArt}\n\n` +
-    `%c ✨ Dream it. Make it. Break the limits. %c\n\n` +
-    `%c👋 Welcome to the source!%c Crafted with passion by Shivank.\n` +
-    `🐙 GitHub:   https://github.com/shivankvibes\n` +
-    `⚡ Hint:     Try typing %cshivank%c or %chelp()%c in this console!\n`,
-    'color: #38bdf8; font-weight: bold; font-family: monospace; line-height: 1.2; font-size: 11px;',
-    'background: linear-gradient(135deg, #2563eb, #7c3aed, #db2777); color: #ffffff; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; letter-spacing: 0.5px; display: inline-block;',
-    '',
-    'color: #38bdf8; font-weight: bold; font-size: 12px;',
-    'color: #94a3b8; font-size: 11px;',
-    'color: #f43f5e; font-weight: bold; font-family: monospace;',
-    'color: #94a3b8;',
-    'color: #f43f5e; font-weight: bold; font-family: monospace;',
-    'color: #94a3b8;'
-  );
-
-  // Interactive console helpers
-  window.shivank = {
-    tagline: 'Dream it. Make it.',
-    role: 'Creative Developer & AI Explorer',
-    github: 'https://github.com/shivankvibes',
-    easterEgg: 'Try entering the Konami Code on the page: ↑ ↑ ↓ ↓ ← → ← → B A'
-  };
-
-  window.help = function () {
-    console.log('%c🚀 SHIVANK VIBES CONSOLE HELP', 'color: #38bdf8; font-weight: bold; font-size: 13px;');
-    console.table({
-      'shivank': { Description: 'Creator profile & details' },
-      'help()': { Description: 'Show this interactive help menu' },
-      'Konami Code': { Description: 'Press ↑ ↑ ↓ ↓ ← → ← → B A on page for secret terminal' }
-    });
-    return '✨ Have fun exploring!';
-  };
 
   // ── Copy Email on Click ───────────────────────────────────────────────────────
   document.querySelectorAll('[data-copy]').forEach(el => {

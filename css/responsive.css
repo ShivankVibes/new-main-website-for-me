@@ -126,6 +126,28 @@
     justify-content: center;
   }
 
+  .nav-cli-btn {
+    height: 36px;
+    padding: 0 8px;
+    font-size: 0.72rem;
+  }
+
+  .nav-cli-badge {
+    display: none;
+  }
+
+  #terminal-easter-egg {
+    width: 100%;
+    height: 80vh;
+    max-height: 80vh;
+    border-radius: var(--radius-md);
+  }
+
+  .term-body {
+    padding: 12px 14px;
+    font-size: 0.78rem;
+  }
+
   /* Hero */
   .hero-section {
     min-height: auto;

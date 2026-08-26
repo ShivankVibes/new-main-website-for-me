@@ -63,6 +63,12 @@
 
       <!-- Right controls -->
       <div class="nav-right">
+        <button class="nav-cli-btn" data-open-terminal aria-label="Open developer terminal (shortcut: ` or ~)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          <span>CLI</span>
+          <span class="nav-cli-badge">~</span>
+        </button>
+
         <button id="theme-toggle" class="nav-theme-btn" aria-label="Switch to light mode">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </button>
@@ -1011,28 +1017,39 @@
 </button>
 
 <!-- ══════════════════════════════════════════════════════════════════════════
-     EASTER EGG — Konami Code Terminal
+     INTERACTIVE DEVELOPER CLI TERMINAL
 ══════════════════════════════════════════════════════════════════════════════ -->
+<canvas id="matrix-canvas" aria-hidden="true"></canvas>
+
 <div id="terminal-overlay" aria-hidden="true" role="dialog" aria-labelledby="terminal-title" aria-modal="true">
   <div id="terminal-easter-egg">
     <div class="term-header">
-      <span class="term-dot red"   aria-hidden="true"></span>
-      <span class="term-dot yellow" aria-hidden="true"></span>
-      <span class="term-dot green" aria-hidden="true"></span>
-      <span class="term-title" id="terminal-title">shivank@portfolio ~ zsh</span>
-      <button class="term-close-btn" id="terminal-close" aria-label="Close terminal">✕</button>
+      <div class="term-dots">
+        <button class="term-dot red" id="term-btn-close" aria-label="Close terminal" title="Close (Esc)"></button>
+        <button class="term-dot yellow" id="term-btn-min" aria-label="Clear terminal" title="Clear (cls)"></button>
+        <button class="term-dot green" id="term-btn-max" aria-label="Maximize terminal" title="Maximize/Restore"></button>
+      </div>
+      <span class="term-title" id="terminal-title">shivank@portfolio: ~ (zsh)</span>
+      <div class="term-header-actions">
+        <button class="term-close-btn" id="terminal-close" aria-label="Close terminal">✕</button>
+      </div>
     </div>
-    <div class="term-body" aria-live="polite">
-      <span class="term-line prompt typed">whoami</span>
-      <span class="term-line output">shivank — developer, maker, 3D printer</span>
-      <span class="term-line prompt">cat hello.txt</span>
-      <span class="term-line accent">Hello, World! 👋</span>
-      <span class="term-line output">You found the easter egg. Nice one.</span>
-      <span class="term-line prompt">ls projects/</span>
-      <span class="term-line purple">dvarabell/  bvk-game/  prabandh-erp/  morse-translator/  isl-translator/  lightning-hands/  voice-sphere/  weather-app/  url-shortener/</span>
-      <span class="term-line prompt">echo "Keep building."</span>
-      <span class="term-line accent">Keep building. 🚀</span>
-      <span class="term-line output">— Press Escape to close —</span>
+    <div class="term-body" id="term-scroll-body" aria-live="polite">
+      <div class="term-output" id="term-output"></div>
+      <div class="term-input-line">
+        <span class="term-prompt" id="term-prompt-text">shivank@portfolio:~$</span>
+        <div class="term-input-wrapper">
+          <input type="text" id="term-cmd-input" class="term-input" autocomplete="off" spellcheck="false" autofocus aria-label="Terminal command input" />
+        </div>
+      </div>
+      <div class="term-chips" id="term-chips">
+        <button class="term-chip" data-cmd="help">help</button>
+        <button class="term-chip" data-cmd="projects">projects</button>
+        <button class="term-chip" data-cmd="skills">skills</button>
+        <button class="term-chip" data-cmd="matrix">matrix</button>
+        <button class="term-chip" data-cmd="hack">hack</button>
+        <button class="term-chip" data-cmd="help --all">help --all</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1041,6 +1058,7 @@
 <script src="js/particles.js" defer></script>
 <script src="js/animations.js" defer></script>
 <script src="js/app.js"        defer></script>
+<script src="js/cli.js"        defer></script>
 
 </body>
 </html>

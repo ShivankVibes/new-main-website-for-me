@@ -141,30 +141,25 @@
   });
 
   // ── Developer Console ASCII Art & Greeting ───────────────────────────────────
-  const asciiLines = [
-    "   _____ __  __ ____ _    __ ___    _   __ __ __   _    __ ____ ____  ______ _____",
-    "  / ___// / / //  _/| |  / //   |  / | / // //_/  | |  / //  _// __ )/ ____// ___/",
-    "  \\__ \\/ /_/ / / /  | | / // /| | /  |/ // ,<     | | / / / / / __  / __/   \\__ \\ ",
-    " ___/ / __  /_/ /   | |/ // ___ |/ /|  // /| |    | |/ /_/ / / /_/ / /___  ___/ / ",
-    "/____/_/ /_//___/   |___//_/  |_/_/ |_//_/ |_|    |___//___//_____/_____/ /____/  "
-  ];
-
-  const asciiColors = [
-    'color: #38bdf8; font-weight: 900; font-family: monospace; font-size: 11px;',
-    'color: #60a5fa; font-weight: 900; font-family: monospace; font-size: 11px;',
-    'color: #818cf8; font-weight: 900; font-family: monospace; font-size: 11px;',
-    'color: #a78bfa; font-weight: 900; font-family: monospace; font-size: 11px;',
-    'color: #c084fc; font-weight: 900; font-family: monospace; font-size: 11px;'
-  ];
-
-  asciiLines.forEach((line, i) => console.log(`%c${line}`, asciiColors[i]));
+  const asciiArt = [
+    "  ___  _  _ ___ __   __   _   _  _ _  __",
+    " / __|| || |_ _|\\ \\ / /  /_\\ | \\| | |/ /",
+    " \\__ \\| __ || |  \\ V /  / _ \\| .` | ' < ",
+    " |___/|_||_|___|  \\_/  /_/ \\_\\_|\\_|_|\\_\\",
+    "  __   _____ ___ ___ ___ ",
+    "  \\ \\ / /_ _| _ ) __/ __|",
+    "   \\ V / | || _ \\ _|\\__ \\",
+    "    \\_/ |___|___/___|___/"
+  ].join("\n");
 
   console.log(
-    '%c ✨ Dream it. Make it. Break the limits. %c\n\n' +
-    '%c👋 Welcome to the source!%c Crafted with passion by Shivank.\n' +
-    '🐙 GitHub:   https://github.com/shivankvibes\n' +
-    '⚡ Hint:     Try typing %cshivank%c or %chelp()%c in this console!\n',
-    'background: linear-gradient(135deg, #2563eb, #7c3aed, #db2777); color: #ffffff; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; letter-spacing: 0.5px;',
+    `%c${asciiArt}\n\n` +
+    `%c ✨ Dream it. Make it. Break the limits. %c\n\n` +
+    `%c👋 Welcome to the source!%c Crafted with passion by Shivank.\n` +
+    `🐙 GitHub:   https://github.com/shivankvibes\n` +
+    `⚡ Hint:     Try typing %cshivank%c or %chelp()%c in this console!\n`,
+    'color: #38bdf8; font-weight: bold; font-family: monospace; line-height: 1.2; font-size: 11px;',
+    'background: linear-gradient(135deg, #2563eb, #7c3aed, #db2777); color: #ffffff; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; letter-spacing: 0.5px; display: inline-block;',
     '',
     'color: #38bdf8; font-weight: bold; font-size: 12px;',
     'color: #94a3b8; font-size: 11px;',

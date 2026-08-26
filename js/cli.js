@@ -993,7 +993,7 @@ Hint: Try running the 'secret', 'matrix', or 'hack' commands in the CLI.`
           <div class="term-input-line">
             <span class="term-prompt" id="term-prompt-text">shivank@portfolio:~$</span>
             <div class="term-input-wrapper">
-              <input type="text" id="term-cmd-input" class="term-input" autocomplete="off" spellcheck="false" autofocus aria-label="Terminal command input" />
+              <input type="text" id="term-cmd-input" class="term-input" autocomplete="off" spellcheck="false" aria-label="Terminal command input" />
             </div>
           </div>
           <div class="term-chips" id="term-chips">
@@ -1360,15 +1360,24 @@ Hint: Try running the 'secret', 'matrix', or 'hack' commands in the CLI.`
 
     // Expose all commands as functions & getters on window
     Object.keys(COMMANDS).forEach(key => {
+      // Skip pure numeric keys like '42' or '1337' since window[number] is reserved for frames
+      if (/^\d+$/.test(key)) {
+        return;
+      }
+
       const def = COMMANDS[key];
       const fn = function (...args) {
-        const out = def.exec(args, {
-          clear: () => console.clear(),
-          matrix: () => terminalInstance.runMatrix(),
-          hack: () => terminalInstance.runHack()
-        });
-        if (typeof out === 'string') {
-          console.log(out.replace(/%c/g, '').replace(/<[^>]*>/g, ''));
+        try {
+          const out = def.exec(args, {
+            clear: () => console.clear(),
+            matrix: () => terminalInstance.runMatrix(),
+            hack: () => terminalInstance.runHack()
+          });
+          if (typeof out === 'string') {
+            console.log(out.replace(/%c/g, '').replace(/<[^>]*>/g, ''));
+          }
+        } catch (e) {
+          console.error(e);
         }
         return `✨ Done: ${key}`;
       };
@@ -1376,20 +1385,26 @@ Hint: Try running the 'secret', 'matrix', or 'hack' commands in the CLI.`
       try {
         Object.defineProperty(window, key, {
           get: () => {
-            const out = def.exec([], {
-              clear: () => console.clear(),
-              matrix: () => terminalInstance.runMatrix(),
-              hack: () => terminalInstance.runHack()
-            });
-            if (typeof out === 'string') {
-              console.log(out.replace(/%c/g, '').replace(/<[^>]*>/g, ''));
+            try {
+              const out = def.exec([], {
+                clear: () => console.clear(),
+                matrix: () => terminalInstance.runMatrix(),
+                hack: () => terminalInstance.runHack()
+              });
+              if (typeof out === 'string') {
+                console.log(out.replace(/%c/g, '').replace(/<[^>]*>/g, ''));
+              }
+            } catch (e) {
+              console.error(e);
             }
             return `💡 Tip: Call ${key}() with arguments if supported.`;
           },
           configurable: true
         });
       } catch (e) {
-        window[key] = fn;
+        try {
+          window[key] = fn;
+        } catch (_) {}
       }
     });
 
